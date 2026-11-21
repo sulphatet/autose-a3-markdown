@@ -1,0 +1,35 @@
+{
+  "summary": "The pull request fixes the reported TypeError by ensuring that only valid, non-boolean, non-list, and non-None attribute values are processed in the `fenced_code` extension when `codehilite` is not used. The provided tests verify the fix and ensure no regressions.",
+  "requirements": [
+    {
+      "requirement": "Fix the TypeError crash in fenced_code when attr_list is enabled and codehilite is disabled, upon encountering boolean or configuration attributes.",
+      "status": "met",
+      "evidence": "The issue states that fenced_code crashes when `linenums` is in the attribute list and `codehilite` is off. The fix handles this by filtering out these types."
+    }
+  ],
+  "findings": [],
+  "verdict": "approve",
+  "kind": "none",
+  "round": "1",
+  "pr": 9,
+  "model": "gemini-3.1-flash-lite",
+  "tokens": {
+    "calls": 9,
+    "total": 34698,
+    "by_model": {
+      "gemini-3.1-flash-lite": {
+        "prompt": 34229,
+        "output": 469,
+        "total": 34698
+      }
+    }
+  },
+  "note": "",
+  "dropped": [
+    {
+      "description": "The fix correctly addresses the TypeError by filtering out None, bool, and list types from the attributes, and converting the remaining values to strings before escaping. This prevents the crash when attributes like `linenums` (which might be boolean or None) are passed to `fenced_code` when `codehilite` is disabled.",
+      "severity": "minor",
+      "evidence": "markdown/extensions/fenced_code.py:161"
+    }
+  ]
+}
