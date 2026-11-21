@@ -279,9 +279,19 @@ def run_unittest(root, target):
 
 
 def parse_unittest(out):
+    """Per-test result from `unittest -v` output.
+
+    Uses the `FAIL: name (...)` / `ERROR: name (...)` summary lines, which have a fixed
+    format. The verbose progress lines put a test's docstring between its name and
+    its result, so they cannot be relied on for the result (found in run 44944052837).
+    """
     res = {}
-    for m in re.finditer(r"^(test\w+) \(([\w.]+)\)[^\n]*? \.\.\. (ok|FAIL|ERROR|skipped.*)$", out, re.M):
-        res[m.group(1)] = m.group(3).split()[0]
+    for m in re.finditer(r"^(test\w+) \([\w.]+\)", out, re.M):
+        res.setdefault(m.group(1), "ok")
+    for m in re.finditer(r"^(test\w+) \([\w.]+\)(?:\n(?!test)[^\n]*)?? \.\.\. skipped", out, re.M):
+        res[m.group(1)] = "skipped"
+    for m in re.finditer(r"^(FAIL|ERROR): (test\w+) \(", out, re.M):
+        res[m.group(2)] = m.group(1)
     return res
 
 
