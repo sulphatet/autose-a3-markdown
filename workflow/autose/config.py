@@ -8,6 +8,9 @@ REPO = "sulphatet/autose-a3-markdown"
 LABEL = "autose"
 STATE_BRANCH = "autose-state"
 BRANCH_PREFIX = "autose/issue-"
+SEED_PREFIX = "autose-seed/issue-"   # seeded reviewer-check PRs: autose-seed/issue-<n>-<tag>
+# Reviewer variants for the D8 experiment, chosen by "/autose variant=<name>" on a PR
+REVIEWER_VARIANTS = {"default": "gemini-3.1-flash-lite", "same-model": "gemini-3.5-flash-lite"}
 
 # ADR-006: models
 BUILDER_MODEL = "gemini-3.5-flash-lite"

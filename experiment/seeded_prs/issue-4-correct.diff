@@ -1,0 +1,54 @@
+diff --git a/docs/changelog.md b/docs/changelog.md
+index cba971a..040e026 100644
+--- a/docs/changelog.md
++++ b/docs/changelog.md
+@@ -16,6 +16,7 @@ See the [Contributing Guide](contributing.md) for details.
+ 
+ ### Fixed
+ 
++* Support `[[Target|text]]` in the `wikilinks` extension to set the link text.
+ * Support automatic links with URL schemes other than HTTP and FTP, such as
+   `<ssh://example.org>` (#1244).
+ * Fix quadratic-time id generation in the `toc` extension when many headers
+diff --git a/markdown/extensions/wikilinks.py b/markdown/extensions/wikilinks.py
+index 70d0ea5..ee42338 100644
+--- a/markdown/extensions/wikilinks.py
++++ b/markdown/extensions/wikilinks.py
+@@ -59,7 +59,7 @@ class WikiLinkExtension(Extension):
+         self.md = md
+ 
+         # append to end of inline patterns
+-        WIKILINK_RE = r'\[\[([\w0-9_ -]+)\]\]'
++        WIKILINK_RE = r'\[\[([\w0-9_ -]+)(?:\|([^\]\[|]+))?\]\]'
+         wikilinkPattern = WikiLinksInlineProcessor(WIKILINK_RE, self.getConfigs())
+         wikilinkPattern.md = md
+         md.inlinePatterns.register(wikilinkPattern, 'wikilink', 75)
+@@ -78,7 +78,7 @@ class WikiLinksInlineProcessor(InlineProcessor):
+             label = m.group(1).strip()
+             url = self.config['build_url'](label, base_url, end_url)
+             a = etree.Element('a')
+-            a.text = label
++            a.text = m.group(2).strip() if m.group(2) and m.group(2).strip() else label
+             a.set('href', url)
+             if html_class:
+                 a.set('class', html_class)
+diff --git a/tests/test_seed_issue_4_correct.py b/tests/test_seed_issue_4_correct.py
+new file mode 100644
+index 0000000..ee882c0
+--- /dev/null
++++ b/tests/test_seed_issue_4_correct.py
+@@ -0,0 +1,14 @@
++"""Tests for a seeded reviewer-check PR."""
++
++from markdown.test_tools import TestCase
++
++
++class TestWikiLinkLabel(TestCase):
++    def test_label(self):
++        self.assertMarkdownRenders('[[Main Page|the home page]]',
++                                   '<p><a class="wikilink" href="/Main_Page/">the home page</a></p>',
++                                   extensions=['wikilinks'])
++
++    def test_plain(self):
++        self.assertMarkdownRenders('[[Main Page]]', '<p><a class="wikilink" href="/Main_Page/">Main Page</a></p>',
++                                   extensions=['wikilinks'])

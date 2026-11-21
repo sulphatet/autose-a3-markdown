@@ -17,7 +17,7 @@ You need triage or write access to this repository.
 | --- | --- |
 | Add the label `autose` to an issue | Full run: stages 1-6 |
 | Comment `/autose` on an issue | Full run, or resume from saved state |
-| Comment `/autose` on a pull request opened by autose | Review only, against the PR's latest commit |
+| Comment `/autose` on a pull request opened by autose, or on a seeded PR (`autose-seed/issue-<n>-<tag>`) | Review only, against the PR's latest commit. Add `variant=same-model` to use the builders' model (experiment E1). |
 | Actions → autose → Run workflow (`issue`, `round`, `resume_from`) | Manual run; also how review rounds are started |
 
 You can follow a run in four places:
