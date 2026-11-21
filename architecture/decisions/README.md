@@ -18,3 +18,5 @@ The decisions and their reasoning are the author's. Claude Code helped write the
 | [008](ADR-008.md) | Reviewer independence (D8) | Separate job, model, prompt, identity and inputs; evidence-backed findings | Reviewer as another step in the build job | Accepted |
 | [009](ADR-009.md) | Safety and failures (D9) | Layered budgets, retry with backoff, partial artifact + stop, injection containment | Trusting prompt instructions alone | Accepted |
 | [010](ADR-010.md) | Triggers (D10) | Label or `/autose` from trusted users; `/autose` on a PR re-runs review only; queued per issue | Any comment author can trigger | Accepted |
+| [011](ADR-011.md) | Test-failure routing (D2) | Test-file problems go back to the tester, behaviour failures to the implementer | Send every stage 4 failure to the implementer | Accepted |
+| [012](ADR-012.md) | PAT handling (D5/D9) | Release in-process; PAT held in memory, passed only to push and PR commands | Separate release step | Accepted, supersedes part of ADR-005 |

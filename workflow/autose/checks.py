@@ -1,0 +1,290 @@
+"""Deterministic stage checks (ADR-007). Code, not an agent, decides pass or fail.
+
+Each check returns a CheckResult. Its `reasons` are written into the stage's
+artifact so a reader can see exactly why a stage passed or failed.
+"""
+
+import ast
+import re
+import subprocess
+from dataclasses import dataclass, field
+from pathlib import Path
+
+from . import config
+from .tools import run_command
+
+WEASEL = ["fast", "user-friendly", "secure", "robust", "scalable", "seamless", "etc.",
+          "and/or", "as appropriate", "enterprise-grade"]
+REQ_ID = r"(?:FR-\d+|NFR-[A-Z]+-\d+)"
+AC_ID = re.compile(rf"AC-{REQ_ID}-\d+")
+
+
+@dataclass
+class CheckResult:
+    ok: bool
+    reasons: list = field(default_factory=list)
+    data: dict = field(default_factory=dict)
+    format_only: bool = False   # the problem is the artifact's format, not its content
+
+    def md(self):
+        head = "PASS" if self.ok else "FAIL"
+        return f"**Check: {head}**\n\n" + "\n".join(f"- {r}" for r in self.reasons) + "\n"
+
+
+def ac_test_name(ac_id):
+    return "test_" + ac_id.replace("-", "_")
+
+
+# ---------------------------------------------------------------- stage 1
+def check_spec(srs, validation):
+    reasons, fmt = [], False
+    verdict = re.search(r"Verdict[^\n]*\n*[^\n]*?(READY FOR IMPLEMENTATION|PARTIALLY READY|NOT READY|ESCALATED TO HUMAN)",
+                        validation, re.I)
+    v = verdict.group(1).upper() if verdict else None
+    if not v:
+        reasons.append("VALIDATION.md has no recognisable verdict")
+        fmt = True
+    elif v not in ("READY FOR IMPLEMENTATION", "PARTIALLY READY"):
+        reasons.append(f"A1 skill verdict is `{v}`: the issue is not specific enough to implement")
+    else:
+        reasons.append(f"A1 skill verdict is `{v}`")
+    vq4 = re.search(r"V-Q4[^\n]*", validation)
+    if not vq4 or "PASS" not in vq4.group(0).upper():
+        reasons.append("check V-Q4 (every acceptance criterion is pass/fail observable) is not PASS")
+        fmt = fmt or not vq4
+    else:
+        reasons.append("V-Q4 is PASS")
+
+    ready, must_ready = [], False
+    for line in srs.splitlines():
+        if not line.strip().startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if cells and re.fullmatch(REQ_ID, cells[0].strip("*` ")) and any(c.strip("*` ") == "Ready" for c in cells):
+            rid = cells[0].strip("*` ")
+            ready.append(rid)
+            must_ready = must_ready or any(c.strip("*` ").lower() == "must" for c in cells)
+    if not ready:
+        reasons.append("no requirement is marked `Ready` in the SRS tables")
+    if ready and not must_ready:
+        reasons.append("no `Must` requirement is `Ready`")
+
+    acs = {}
+    for line in srs.splitlines():
+        for m in AC_ID.finditer(line):
+            acs.setdefault(m.group(0), line[m.end():].strip(" :-*|"))
+    ready_acs = {}
+    for rid in ready:
+        mine = {a: t for a, t in acs.items() if a.startswith(f"AC-{rid}-")}
+        if not mine:
+            reasons.append(f"{rid} is Ready but has no acceptance criterion `AC-{rid}-n`")
+        for a, t in mine.items():
+            low = t.lower()
+            problems = []
+            if not all(w in low for w in ("given", "when", "then")) and not re.search(r"\d", t):
+                problems.append("not in Given/When/Then form and has no measurable threshold")
+            if "<tbd" in low:
+                problems.append("contains a <TBD> placeholder")
+            bad = [w for w in WEASEL if re.search(rf"(?<![\w-]){re.escape(w)}(?![\w-])", low)]
+            if bad:
+                problems.append(f"uses unquantified words {bad}")
+            if problems:
+                reasons.append(f"{a}: " + "; ".join(problems))
+            else:
+                ready_acs[a] = t
+    ok = bool(v in ("READY FOR IMPLEMENTATION", "PARTIALLY READY") and vq4 and "PASS" in vq4.group(0).upper()
+              and ready and must_ready and ready_acs
+              and all(any(a.startswith(f"AC-{r}-") for a in ready_acs) for r in ready)
+              and len([r for r in reasons if r.startswith("AC-")]) == 0)
+    if ok:
+        reasons.append(f"{len(ready)} Ready requirement(s), {len(ready_acs)} testable acceptance criteria: "
+                       + ", ".join(ready_acs))
+    return CheckResult(ok, reasons, {"verdict": v, "ready": ready, "acs": ready_acs},
+                       format_only=fmt and not ok)
+
+
+# ---------------------------------------------------------------- stage 2
+def _symbols(path):
+    try:
+        tree = ast.parse(Path(path).read_text())
+    except (SyntaxError, UnicodeDecodeError):
+        return set()
+    names = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            names.add(node.name)
+        if isinstance(node, ast.ClassDef):
+            for sub in node.body:
+                if isinstance(sub, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    names.add(f"{node.name}.{sub.name}")
+        if isinstance(node, ast.Assign):
+            for t in node.targets:
+                if isinstance(t, ast.Name):
+                    names.add(t.id)
+    return names
+
+
+def parse_change_list(design):
+    rows, in_table, header = [], False, None
+    for line in design.splitlines():
+        s = line.strip()
+        if s.startswith("|"):
+            cells = [c.strip().strip("`* ") for c in s.strip("|").split("|")]
+            low = [c.lower() for c in cells]
+            if header is None and "file" in low and "symbol" in low:
+                header, in_table = low, True
+                continue
+            if in_table and set(s.replace("|", "").strip()) <= set("-: "):
+                continue
+            if in_table and len(cells) >= len(header):
+                rows.append(dict(zip(header, cells)))
+        elif in_table and s:
+            in_table = False if rows else in_table
+    return rows
+
+
+def check_design(design, root, ac_ids):
+    reasons = []
+    rows = parse_change_list(design)
+    if not rows:
+        return CheckResult(False, ["design.md has no Change list table with `file` and `symbol` columns"],
+                           format_only=True)
+    covered, ok = set(), True
+    for r in rows:
+        f, sym, change = r.get("file", ""), r.get("symbol", ""), r.get("change", "").lower()
+        new_file = "new file" in change or f.endswith("(new)")
+        f = f.replace("(new)", "").strip()
+        p = Path(root) / f
+        if not new_file and not p.is_file():
+            ok = False
+            reasons.append(f"`{f}` does not exist (mark it `new file` in the change column if it is new)")
+            continue
+        new_sym = "(new)" in sym or change.startswith("add") or new_file
+        sym_clean = sym.replace("(new)", "").replace("()", "").strip()
+        if not sym_clean:
+            ok = False
+            reasons.append(f"row for `{f}` names no symbol")
+        elif not new_sym and f.endswith(".py") and sym_clean not in _symbols(p):
+            ok = False
+            reasons.append(f"`{sym_clean}` is not a function, class, method or module name in `{f}`")
+        else:
+            reasons.append(f"`{f}` :: `{sym_clean}`" + (" (new)" if new_sym else " found"))
+        covered |= set(AC_ID.findall(r.get("acs covered", "") + " " + r.get("acs", "")))
+    missing = [a for a in ac_ids if a not in covered]
+    if missing:
+        ok = False
+        reasons.append(f"acceptance criteria not covered by any change: {missing}")
+    return CheckResult(ok, reasons, {"rows": rows})
+
+
+# ---------------------------------------------------------------- stage 3
+def changed_files(root, base_sha):
+    subprocess.run(["git", "add", "-A", "-N"], cwd=root, check=True, capture_output=True)
+    out = subprocess.run(["git", "diff", "--name-only", base_sha], cwd=root, check=True,
+                         capture_output=True, text=True).stdout
+    return [f for f in out.splitlines() if f]
+
+
+def check_build(root, base_sha, design_files):
+    reasons = []
+    files = changed_files(root, base_sha)
+    src = [f for f in files if f.startswith("markdown/")]
+    if not src:
+        return CheckResult(False, ["no change under `markdown/`"])
+    bad = [f for f in files if any(f == p.rstrip("/") or f.startswith(p) for p in config.FORBIDDEN_DIFF_PATHS)]
+    if bad:
+        return CheckResult(False, [f"diff touches forbidden paths: {bad}"])
+    reasons.append(f"changed files: {files}")
+    extra = [f for f in src if f not in design_files]
+    if extra:
+        reasons.append(f"deviation (recorded, not a failure): files changed outside the design: {extra}")
+    if "docs/changelog.md" not in files:
+        reasons.append("no `docs/changelog.md` entry; upstream CI (changelog-enforcer) will fail")
+        return CheckResult(False, reasons)
+    steps = [
+        (["python", "-m", "pip", "install", "-q", "-e", "."], "pip install -e ."),
+        (["python", "-c", "import markdown; markdown.markdown('# x', extensions=['extra', 'toc'])"], "import + smoke call"),
+        (["python", "-m", "flake8", "markdown"], "flake8 markdown"),
+    ]
+    for argv, label in steps:
+        code, out = run_command(argv, root)
+        if code != 0:
+            reasons.append(f"`{label}` failed (exit {code}):\n\n```\n{out[-3000:]}\n```")
+            return CheckResult(False, reasons, {"files": files})
+        reasons.append(f"`{label}` passed")
+    return CheckResult(True, reasons, {"files": files})
+
+
+# ---------------------------------------------------------------- stage 4
+def test_methods(path):
+    try:
+        tree = ast.parse(Path(path).read_text())
+    except SyntaxError as e:
+        return None, str(e)
+    names = [n.name for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name.startswith("test")]
+    return names, None
+
+
+def check_test_file(root, test_file, ac_ids):
+    """Structure of the tester's file (ADR-011: failures here go back to the tester)."""
+    p = Path(root) / test_file
+    if not p.is_file():
+        return CheckResult(False, [f"test file `{test_file}` was not written"], format_only=True)
+    names, err = test_methods(p)
+    if err:
+        return CheckResult(False, [f"test file has a syntax error: {err}"])
+    reasons = [f"test methods: {names}"]
+    missing = [a for a in ac_ids if not any(ac_test_name(a) in n for n in names)]
+    if missing:
+        reasons.append("no test named after: " + ", ".join(f"{a} (`{ac_test_name(a)}`)" for a in missing))
+    code, out = run_command(["python", "-m", "flake8", test_file], root)
+    if code != 0:
+        reasons.append(f"flake8 on the test file failed (upstream CI lints tests):\n\n```\n{out[-2000:]}\n```")
+    return CheckResult(not missing and code == 0, reasons, {"names": names})
+
+
+def _module(test_file):
+    return test_file[:-3].replace("/", ".")
+
+
+def run_unittest(root, target):
+    return run_command(["python", "-m", "unittest", "-v", target], root)
+
+
+def parse_unittest(out):
+    res = {}
+    for m in re.finditer(r"^(test\w+) \(([\w.]+)\)[^\n]*? \.\.\. (ok|FAIL|ERROR|skipped.*)$", out, re.M):
+        res[m.group(1)] = m.group(3).split()[0]
+    return res
+
+
+def check_fail_to_pass(base_root, test_file, ac_ids):
+    """New tests must fail on the base commit: otherwise they do not test the change."""
+    code, out = run_unittest(base_root, _module(test_file))
+    per = parse_unittest(out)
+    if code == 0:
+        return CheckResult(False, ["every new test passes on the base commit, so none of them tests the change"],
+                           {"base": per})
+    failing = [n for n, r in per.items() if r in ("FAIL", "ERROR")]
+    if not failing and ("ImportError" in out or "ModuleNotFoundError" in out or "AttributeError" in out):
+        failing = ["(test module fails to import on base)"]
+    reasons = [f"{len(failing)} new test(s) fail on base as expected: {failing}"]
+    passing = [n for n, r in per.items() if r == "ok"]
+    if passing:
+        reasons.append(f"pass on base too (regression tests, recorded): {passing}")
+    return CheckResult(bool(failing), reasons, {"base": per})
+
+
+def check_suite(root, test_file):
+    reasons = []
+    code, out = run_unittest(root, _module(test_file))
+    per = parse_unittest(out)
+    if code != 0:
+        return CheckResult(False, [f"new tests fail on the branch:\n\n```\n{out[-4000:]}\n```"], {"new": per, "log": out})
+    reasons.append(f"new tests pass on the branch: {list(per)}")
+    code, out = run_command(["python", "-m", "unittest", "discover", "tests"], root)
+    summary = out.strip().splitlines()[-3:] if out.strip() else []
+    if code != 0:
+        return CheckResult(False, reasons + [f"full suite fails:\n\n```\n{out[-4000:]}\n```"], {"new": per, "log": out})
+    reasons.append("full suite passes: " + " ".join(summary))
+    return CheckResult(True, reasons, {"new": per})
