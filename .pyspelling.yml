@@ -34,7 +34,7 @@ matrix:
 - name: markdown
   group: docs
   sources:
-  - README.md
+  - README.upstream.md
   - INSTALL.md
   - LICENSE.md
   - CODE_OF_CONDUCT.md
