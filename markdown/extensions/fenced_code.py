@@ -158,7 +158,7 @@ class FencedBlockPreprocessor(Preprocessor):
                         # `use_pygments` key could be either set to `False` or not defined. It is omitted from output.
                         kv_pairs = ''.join(
                             f' {sanitize_name(k)}="{_escape_attrib_html(v)}"'
-                            for k, v in config.items() if k != 'use_pygments'
+                            for k, v in config.items() if k != 'use_pygments' and v is not None
                         )
                     code = self._escape(m.group('code'))
                     code = f'<pre{id_attr}{class_attr}><code{lang_attr}{kv_pairs}>{code}</code></pre>'

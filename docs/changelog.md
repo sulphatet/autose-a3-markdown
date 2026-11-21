@@ -16,6 +16,7 @@ See the [Contributing Guide](contributing.md) for details.
 
 ### Fixed
 
+* Fix `fenced_code` crashing when options such as `linenums` are in an attribute list without `codehilite`.
 * Support automatic links with URL schemes other than HTTP and FTP, such as
   `<ssh://example.org>` (#1244).
 * Fix quadratic-time id generation in the `toc` extension when many headers
