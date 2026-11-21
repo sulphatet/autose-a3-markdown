@@ -1,0 +1,43 @@
+{
+  "kind": "code",
+  "findings": [
+    {
+      "evidence": "markdown/extensions/toc.py:451",
+      "description": "`self.md.toc_tokens` is assigned `toc_tokens` before filtering out `notoc` headings, so `md.toc_tokens` still includes `notoc` headings unlike the TOC HTML output.",
+      "line": 451,
+      "severity": "major",
+      "file": "markdown/extensions/toc.py"
+    }
+  ],
+  "requirements": [
+    {
+      "requirement": "Skip headings with class notoc in table of contents",
+      "status": "met",
+      "evidence": "tests/test_seed_issue_5_missing_tokens.py:10"
+    },
+    {
+      "evidence": "markdown/extensions/toc.py:451",
+      "status": "not_met",
+      "requirement": "It would be nice if md.toc_tokens left it out too, so other tools see the same list."
+    }
+  ],
+  "summary": "The pull request implements skipping headings with the class `notoc` for the generated TOC HTML, but leaves them in `md.toc_tokens` because `self.md.toc_tokens = toc_tokens` assigns the unfiltered `toc_tokens` instead of `visible`.",
+  "verdict": "request_changes",
+  "round": "manual",
+  "pr": 12,
+  "model": "gemini-3.5-flash-lite",
+  "variant": "same-model",
+  "tokens": {
+    "calls": 6,
+    "total": 25443,
+    "by_model": {
+      "gemini-3.5-flash-lite": {
+        "prompt": 24842,
+        "output": 601,
+        "total": 25443
+      }
+    }
+  },
+  "note": "",
+  "dropped": []
+}
