@@ -1,0 +1,49 @@
+{
+  "findings": [
+    {
+      "description": "When using `[[Target Page|the home page]]`, `label = m.group(1).strip()` is passed to `build_url`, meaning `build_url` receives `'Main Page|the home page'` instead of just `'Main Page'`, resulting in an incorrect URL containing the pipe and label text.",
+      "severity": "blocker",
+      "evidence": "markdown/extensions/wikilinks.py:78",
+      "file": "markdown/extensions/wikilinks.py",
+      "line": 78,
+      "command": ""
+    }
+  ],
+  "summary": "The pull request implements support for `[[Target|text]]` in wikilinks, but has a critical bug: `label` passed to `build_url` includes the `|text` part (e.g. `Main Page|the home page`), leading to an incorrect URL. `label` needs to be split before calling `build_url`.",
+  "requirements": [
+    {
+      "requirement": "The part before | builds the URL exactly like it does today (same base_url, end_url, html_class and build_url handling)",
+      "evidence": "markdown/extensions/wikilinks.py:78",
+      "status": "not_met"
+    },
+    {
+      "requirement": "The part after | is the text of the link",
+      "evidence": "markdown/extensions/wikilinks.py:81",
+      "status": "met"
+    },
+    {
+      "evidence": "tests/test_seed_issue_4_wrong_url.py:10",
+      "requirement": "Plain [[Main Page]] keeps working exactly as now",
+      "status": "met"
+    }
+  ],
+  "kind": "code",
+  "verdict": "request_changes",
+  "round": "manual",
+  "pr": 11,
+  "model": "gemini-3.5-flash-lite",
+  "variant": "same-model",
+  "tokens": {
+    "calls": 5,
+    "total": 16844,
+    "by_model": {
+      "gemini-3.5-flash-lite": {
+        "prompt": 16367,
+        "output": 477,
+        "total": 16844
+      }
+    }
+  },
+  "note": "",
+  "dropped": []
+}
