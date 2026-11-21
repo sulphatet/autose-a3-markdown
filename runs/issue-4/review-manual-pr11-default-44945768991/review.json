@@ -1,0 +1,24 @@
+{
+  "verdict": "approve",
+  "kind": "none",
+  "summary": "The reviewer could not produce a valid review: turn budget used up (40 turns) without submitting. No automated changes are requested; the human reviewer should look closely.",
+  "requirements": [],
+  "findings": [],
+  "round": "manual",
+  "pr": 11,
+  "model": "gemini-3.1-flash-lite",
+  "variant": "default",
+  "tokens": {
+    "calls": 40,
+    "total": 197719,
+    "by_model": {
+      "gemini-3.1-flash-lite": {
+        "prompt": 196258,
+        "output": 1461,
+        "total": 197719
+      }
+    }
+  },
+  "note": "invalid",
+  "dropped": []
+}
