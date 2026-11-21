@@ -1,0 +1,35 @@
+{
+  "requirements": [
+    {
+      "status": "met",
+      "requirement": "Support [[Target Page|link text]] syntax.",
+      "evidence": "markdown/extensions/wikilinks.py:62,80-84"
+    },
+    {
+      "requirement": "[[Target Page]] should keep working as before.",
+      "evidence": "markdown/extensions/wikilinks.py:84,86",
+      "status": "met"
+    }
+  ],
+  "verdict": "approve",
+  "summary": "The pull request correctly implements the requested feature by updating the regex to optionally match a pipe and link text, and updating the `handleMatch` method to use the provided text or default to the label. Existing functionality is preserved. Tests were added to verify the new functionality.",
+  "kind": "none",
+  "findings": [],
+  "round": "1",
+  "pr": 18,
+  "model": "gemini-3.1-flash-lite",
+  "variant": "default",
+  "tokens": {
+    "calls": 9,
+    "total": 27433,
+    "by_model": {
+      "gemini-3.1-flash-lite": {
+        "prompt": 27087,
+        "output": 346,
+        "total": 27433
+      }
+    }
+  },
+  "note": "",
+  "dropped": []
+}
