@@ -1,0 +1,45 @@
+{
+  "requirements": [
+    {
+      "evidence": "markdown/extensions/wikilinks.py:62",
+      "status": "met",
+      "requirement": "Support Target Page|text syntax in wikilinks (e.g. [[Target Page|what the reader sees]])"
+    },
+    {
+      "status": "met",
+      "evidence": "markdown/extensions/wikilinks.py:81",
+      "requirement": "Part before | builds the URL using base_url, end_url, html_class, and build_url handling"
+    },
+    {
+      "status": "met",
+      "requirement": "Part after | is the text of the link, with fallback to label when text is empty or missing",
+      "evidence": "markdown/extensions/wikilinks.py:81"
+    },
+    {
+      "evidence": "tests/test_seed_issue_4_correct.py:12",
+      "status": "met",
+      "requirement": "Plain [[Main Page]] continues working correctly"
+    }
+  ],
+  "kind": "none",
+  "findings": [],
+  "summary": "The pull request correctly implements support for `[[Target|text]]` syntax in the `wikilinks` extension, satisfying all requirements from the issue and passing all unit tests cleanly.",
+  "verdict": "approve",
+  "round": "manual",
+  "pr": 10,
+  "model": "gemini-3.5-flash-lite",
+  "variant": "same-model",
+  "tokens": {
+    "calls": 5,
+    "total": 17120,
+    "by_model": {
+      "gemini-3.5-flash-lite": {
+        "prompt": 16755,
+        "output": 365,
+        "total": 17120
+      }
+    }
+  },
+  "note": "",
+  "dropped": []
+}
