@@ -1,0 +1,46 @@
+{
+  "summary": "The PR correctly implements the feature to skip headings with the `notoc` class in the table of contents. The implementation is clean and includes a test case.",
+  "verdict": "approve",
+  "findings": [],
+  "requirements": [
+    {
+      "evidence": "markdown/extensions/toc.py:424-425",
+      "requirement": "The `toc` extension should skip any heading that has the class `notoc`.",
+      "status": "met"
+    },
+    {
+      "requirement": "The TOC should list headings without `notoc` but not those with `notoc`.",
+      "status": "met",
+      "evidence": "tests/test_seed_issue_5_missing_tokens.py"
+    },
+    {
+      "status": "met",
+      "requirement": "The heading itself should still be rendered as `<h2 class=\"notoc\" id=\"changelog\">`.",
+      "evidence": "markdown/extensions/toc.py:424-425"
+    }
+  ],
+  "kind": "none",
+  "round": "manual",
+  "pr": 12,
+  "model": "gemini-3.1-flash-lite",
+  "variant": "default",
+  "tokens": {
+    "calls": 11,
+    "total": 77564,
+    "by_model": {
+      "gemini-3.1-flash-lite": {
+        "prompt": 77020,
+        "output": 544,
+        "total": 77564
+      }
+    }
+  },
+  "note": "",
+  "dropped": [
+    {
+      "severity": "nit",
+      "description": "The PR correctly implements the requested feature to skip headings with the class `notoc` in the TOC. The implementation uses `flatten` to filter tokens and `nest_toc_tokens` to rebuild the structure, which is a robust approach. The tests confirm the functionality.",
+      "evidence": "tests/test_seed_issue_5_missing_tokens.py"
+    }
+  ]
+}
