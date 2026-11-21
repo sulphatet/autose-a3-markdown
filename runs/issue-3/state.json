@@ -1,0 +1,27 @@
+{
+  "base_sha": "3a7eb8cf0219740f96c3e3f991c12b63aacbc9b2",
+  "issue": 3,
+  "rounds": {
+    "1": {
+      "S1": {
+        "attempts": 0,
+        "input_hash": "f742c81498f9a7f4767b6c09acc59aeaa5f003de78483807764e905334dc6bd7",
+        "reason": "A1 skill verdict is `NOT READY`: the issue is not specific enough to implement; V-Q4 is PASS; no requirement is marked `Ready` in the SRS tables",
+        "status": "stopped"
+      }
+    }
+  },
+  "tokens": {
+    "round-1": {
+      "by_model": {
+        "gemini-3.5-flash-lite": {
+          "output": 1966,
+          "prompt": 8290,
+          "total": 10256
+        }
+      },
+      "calls": 1,
+      "total": 10256
+    }
+  }
+}
