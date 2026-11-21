@@ -14,6 +14,12 @@ See the [Contributing Guide](contributing.md) for details.
 
 ## [Unreleased]
 
+### Added
+
+* The `wikilinks` extension now supports custom link text syntax, allowing
+  `[[Target Page|link text]]` to be rendered as an anchor linking to `Target Page`
+  with `link text` as its content.
+
 ### Fixed
 
 * Support automatic links with URL schemes other than HTTP and FTP, such as
