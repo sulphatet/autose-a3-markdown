@@ -20,3 +20,5 @@ The decisions and their reasoning are the author's. Claude Code helped write the
 | [010](ADR-010.md) | Triggers (D10) | Label or `/autose` from trusted users; `/autose` on a PR re-runs review only; queued per issue | Any comment author can trigger | Accepted |
 | [011](ADR-011.md) | Test-failure routing (D2) | Test-file problems go back to the tester, behaviour failures to the implementer | Send every stage 4 failure to the implementer | Accepted |
 | [012](ADR-012.md) | PAT handling (D5/D9) | Release in-process; PAT held in memory, passed only to push and PR commands | Separate release step | Accepted, supersedes part of ADR-005 |
+| [013](ADR-013.md) | Lint in the build check (D7) | Count only lint errors the change introduces (baseline on base commit) | Require `flake8 markdown` to pass outright | Accepted, supersedes part of ADR-007 |
+| [014](ADR-014.md) | Token budget (D9) | 8M tokens per run | Keep 2M | Accepted, supersedes part of ADR-009 |

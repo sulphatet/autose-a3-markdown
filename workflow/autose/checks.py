@@ -185,7 +185,26 @@ def changed_files(root, base_sha):
     return [f for f in out.splitlines() if f]
 
 
-def check_build(root, base_sha, design_files):
+def flake8_errors(root, target="markdown"):
+    """flake8 errors keyed by (path, code, source line), so line shifts do not matter (ADR-013)."""
+    _, out = run_command(["python", "-m", "flake8", target], root)
+    errs = {}
+    for line in out.splitlines():
+        m = re.match(r"^(.+?):(\d+):(\d+): (\w+) (.*)$", line)
+        if not m:
+            continue
+        path, ln = m.group(1), int(m.group(2))
+        try:
+            src = (Path(root) / path).read_text().splitlines()[ln - 1].strip()
+        except (OSError, IndexError):
+            src = ""
+        key = (path, m.group(4), src)
+        n = sum(1 for k in errs if k[:3] == key)
+        errs[key + (n,)] = line
+    return errs
+
+
+def check_build(root, base_sha, design_files, lint_baseline=None):
     reasons = []
     files = changed_files(root, base_sha)
     src = [f for f in files if f.startswith("markdown/")]
@@ -204,7 +223,6 @@ def check_build(root, base_sha, design_files):
     steps = [
         (["python", "-m", "pip", "install", "-q", "-e", "."], "pip install -e ."),
         (["python", "-c", "import markdown; markdown.markdown('# x', extensions=['extra', 'toc'])"], "import + smoke call"),
-        (["python", "-m", "flake8", "markdown"], "flake8 markdown"),
     ]
     for argv, label in steps:
         code, out = run_command(argv, root)
@@ -212,6 +230,15 @@ def check_build(root, base_sha, design_files):
             reasons.append(f"`{label}` failed (exit {code}):\n\n```\n{out[-3000:]}\n```")
             return CheckResult(False, reasons, {"files": files})
         reasons.append(f"`{label}` passed")
+    # ADR-013: only lint errors the change introduces count; pre-existing ones are reported, not failed.
+    now = flake8_errors(root)
+    base = lint_baseline or {}
+    new = [v for k, v in now.items() if k not in base]
+    if new:
+        reasons.append("`flake8 markdown` reports errors introduced by this change:\n\n```\n"
+                       + "\n".join(new[:40]) + "\n```")
+        return CheckResult(False, reasons, {"files": files})
+    reasons.append(f"`flake8 markdown`: no new errors ({len(base)} pre-existing on the base commit ignored)")
     return CheckResult(True, reasons, {"files": files})
 
 

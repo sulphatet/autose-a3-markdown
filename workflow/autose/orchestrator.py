@@ -151,6 +151,9 @@ class Run:
         sh(["git", "-c", "user.name=autose", "-c", "user.email=autose@localhost", "commit", "-q",
             "--allow-empty", "-m", "autose: strip assignment folders (local only)"], self.work)
         self.work_base = sh(["git", "rev-parse", "HEAD"], self.work).strip()
+        self.lint_baseline = checks.flake8_errors(self.work)       # ADR-013
+        if self.lint_baseline:
+            self.log(f"lint baseline: {len(self.lint_baseline)} pre-existing flake8 error(s) on the base commit")
         self.issue_hash = sha(self.issue["title"], self.issue["body"])
 
     def apply_patch(self, name):
@@ -278,6 +281,11 @@ class Run:
         user = (issue_block(self.issue) + "\n\n# spec.md\n\n" + self.stage_file("spec.md")
                 + "\n\n# design.md\n\n" + self.stage_file("design.md")
                 + "\n\n# Architecture document\n\n" + ARCH.read_text())
+        if self.lint_baseline:
+            user += ("\n\n# Pre-existing lint errors (not yours; do not touch these files for them)\n\n"
+                     "`python -m flake8 markdown` already reports these on the unchanged code. The build check "
+                     "ignores them and only fails on errors your change adds:\n\n```\n"
+                     + "\n".join(sorted(self.lint_baseline.values())) + "\n```")
         if feedback:
             user += "\n\n# The previous attempt failed. Failure output (fix this):\n\n" + feedback[-12000:]
         try:
@@ -288,7 +296,7 @@ class Run:
             if "model unavailable" in str(e) or "tokens" in str(e):
                 raise Stop("S3", f"Implementer stopped: {e}")
             summary = f"(implementer stopped: {e})"
-        build = checks.check_build(self.work, self.work_base, design_files)
+        build = checks.check_build(self.work, self.work_base, design_files, self.lint_baseline)
         diff = self.save_diff()
         self.write("implementation.md", f"# Implementation, attempt {self.state.stage(self.round, 'S3')['attempts']}\n\n"
                    f"Implementer summary: {summary}\n\n## Pipeline check (stage 3, `checks.check_build`)\n\n{build.md()}")
@@ -380,7 +388,7 @@ class Run:
             impl += 1
             st3 = self.state.stage(self.round, "S3")
             if resumed:
-                build = checks.check_build(self.work, self.work_base, design_files)
+                build = checks.check_build(self.work, self.work_base, design_files, self.lint_baseline)
                 tests = (checks.CheckResult(True, ["tests reused from an earlier run of this round"]),
                          checks.CheckResult(True, ["fail-to-pass was checked in the earlier run"]))
                 resumed = False

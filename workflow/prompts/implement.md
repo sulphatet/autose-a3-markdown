@@ -9,5 +9,5 @@ Rules:
 2. Prefer `replace_in_file` with a few lines of context over rewriting whole files.
 3. Keep the project's style. Lines must be at most 119 characters (flake8 runs in CI).
 4. Add one entry to `docs/changelog.md` under `## [Unreleased]`, in the right `### Fixed` or `### Added` subsection (create the subsection if missing), as a `*` bullet wrapped at about 80 characters, in the same style as the existing entries. Put code names in backticks. Use plain English words only: a spell checker runs on the docs, and code names outside backticks fail it.
-5. Before you submit, run `python -m flake8 markdown` and `python -m unittest discover tests`, and fix what you broke.
+5. Before you submit, run `python -m flake8 markdown` and `python -m unittest discover tests`, and fix what you broke. Ignore lint errors listed as pre-existing.
 6. Call `submit` with a short `summary` of what you changed (files and functions).
