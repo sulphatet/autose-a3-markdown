@@ -16,5 +16,5 @@ The decisions and their reasoning are the author's. Claude Code helped write the
 | [006](ADR-006.md) | Models (D6) | Gemini 3.5 Flash-Lite for builders, 3.1 Flash-Lite for the reviewer | Stronger Flash/Hydrogen models (unavailable on free tier) | Accepted |
 | [007](ADR-007.md) | Checks (D7) | Code decides every pass/fail; LLM output is only an input | LLM judge decides stage passes | Accepted |
 | [008](ADR-008.md) | Reviewer independence (D8) | Separate job, model, prompt, identity and inputs; evidence-backed findings | Reviewer as another step in the build job | Accepted |
-| [009](ADR-009.md) | Safety and failures (D9) | Layered budgets, retry/fallback, partial artifact + stop, injection containment | Trusting prompt instructions alone | Accepted |
+| [009](ADR-009.md) | Safety and failures (D9) | Layered budgets, retry with backoff, partial artifact + stop, injection containment | Trusting prompt instructions alone | Accepted |
 | [010](ADR-010.md) | Triggers (D10) | Label or `/autose` from trusted users; `/autose` on a PR re-runs review only; queued per issue | Any comment author can trigger | Accepted |
