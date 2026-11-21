@@ -16,6 +16,10 @@ See the [Contributing Guide](contributing.md) for details.
 
 ### Fixed
 
+* Fix `TypeError` crash in `fenced_code` when `attr_list` is enabled and `codehilite`
+  is disabled, upon encountering boolean or configuration attributes such as
+  `linenums`, `guess_lang`, or `noclasses`.
+
 * Support automatic links with URL schemes other than HTTP and FTP, such as
   `<ssh://example.org>` (#1244).
 * Fix quadratic-time id generation in the `toc` extension when many headers
