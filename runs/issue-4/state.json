@@ -16,15 +16,22 @@
         "status": "passed"
       },
       "S3": {
-        "artifact_sha": "bc756ef23b5a58c58b800390fb441e88f715e2cbc4d1d8959a4d29ce7e0e0bf9",
-        "attempts": 1,
+        "artifact_sha": "aec20fd395a5881e323261c48d020a58de2dd258758584a4acd92066c685887d",
+        "attempts": 2,
         "input_hash": "2d67a9333d24632e498d15ad61812e8765291e4a030d1cd2b55673e362a4d972",
         "status": "passed"
       },
       "S4": {
+        "artifact_sha": "6e4ca8373b8d3f2555c70d06edc8d517339c4f12fb09fcf69b0ff816d4f99146",
         "attempts": 0,
         "reason": "tester could not produce valid tests: 0 new test(s) fail on base as expected: []",
-        "status": "stopped"
+        "status": "passed"
+      },
+      "S5": {
+        "artifact_sha": "8332c3ae8071877ede26da82f2fc6e6fd7e31b7083e7becd9dd0265a0c085671",
+        "attempts": 0,
+        "pr": 18,
+        "status": "passed"
       }
     }
   },
@@ -32,13 +39,13 @@
     "round-1": {
       "by_model": {
         "gemini-3.5-flash-lite": {
-          "output": 6845,
-          "prompt": 485988,
-          "total": 492833
+          "output": 1963,
+          "prompt": 343150,
+          "total": 345113
         }
       },
-      "calls": 47,
-      "total": 492833
+      "calls": 31,
+      "total": 345113
     }
   }
 }
