@@ -13,7 +13,7 @@ The decisions and their reasoning are the author's. Claude Code helped write the
 | [003](ADR-003.md) | Hand-offs (D3) | Fixed input set per agent, files only, no conversations | Pass the full conversation forward | Accepted |
 | [004](ADR-004.md) | State (D4) | `autose-state` branch + run artifacts, deterministic resume by input hash | Commit artifacts to the PR branch | Accepted |
 | [005](ADR-005.md) | Tools (D5) | Own tool layer per role, path jail, command allow-list, split GitHub identities | Generic bash tool / GitHub MCP server for agents | Accepted |
-| [006](ADR-006.md) | Models (D6) | Gemini free tier: 3.8 Flash for builders, 4 Hydrogen for reviewer, fallback chain | One model for every role | Accepted |
+| [006](ADR-006.md) | Models (D6) | Gemini 3.5 Flash-Lite for builders, 3.1 Flash-Lite for the reviewer | Stronger Flash/Hydrogen models (unavailable on free tier) | Accepted |
 | [007](ADR-007.md) | Checks (D7) | Code decides every pass/fail; LLM output is only an input | LLM judge decides stage passes | Accepted |
 | [008](ADR-008.md) | Reviewer independence (D8) | Separate job, model, prompt, identity and inputs; evidence-backed findings | Reviewer as another step in the build job | Accepted |
 | [009](ADR-009.md) | Safety and failures (D9) | Layered budgets, retry/fallback, partial artifact + stop, injection containment | Trusting prompt instructions alone | Accepted |

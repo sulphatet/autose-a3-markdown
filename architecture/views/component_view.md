@@ -19,7 +19,7 @@ flowchart TB
     subgraph BUILD[job: build — GITHUB_TOKEN contents/issues write; PAT only in release step]
         ORCH[orchestrator.py<br/>state machine, budgets, resume]
         CHK[checks.py<br/>deterministic stage checks]
-        LLM[llm.py<br/>Gemini client: retry, fallback, token count]
+        LLM[llm.py<br/>Gemini client: retry, token count<br/>gemini-3.5-flash-lite]
         TOOLS[tools.py<br/>role-scoped tools, path jail,<br/>command allow-list, scrubbed env]
         SPEC[Spec agent<br/>A1 skill]
         DES[Designer]
@@ -30,7 +30,7 @@ flowchart TB
 
     subgraph REVIEW[job: review — contents:read, pull-requests:write, no PAT]
         RORCH[review.py]
-        REV[Reviewer agent<br/>gemini-4-hydrogen]
+        REV[Reviewer agent<br/>gemini-3.1-flash-lite]
         RTOOLS[read-only tools + optional run]
     end
 
