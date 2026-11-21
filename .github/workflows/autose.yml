@@ -172,12 +172,15 @@ jobs:
           PR: ${{ needs.build.outputs.pr || needs.gate.outputs.pr }}
           ISSUE: ${{ needs.gate.outputs.issue }}
           ROUND: ${{ needs.gate.outputs.round }}
-        run: python -m autose.review --pr "$PR" --issue "$ISSUE" --round "$ROUND" --work work --out review
+          VARIANT: ${{ needs.gate.outputs.mode == 'review' && needs.gate.outputs.resume_from || 'default' }}
+        run: >
+          python -m autose.review --pr "$PR" --issue "$ISSUE" --round "$ROUND" --variant "$VARIANT"
+          --work work --out review
       - name: Upload review
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: autose-review-issue-${{ needs.gate.outputs.issue }}-round-${{ needs.gate.outputs.round }}
+          name: autose-review-issue-${{ needs.gate.outputs.issue }}-round-${{ needs.gate.outputs.round }}-pr${{ needs.gate.outputs.pr || 'auto' }}
           path: review/
           if-no-files-found: ignore
 
@@ -200,7 +203,7 @@ jobs:
           persist-credentials: false
       - uses: actions/download-artifact@v4
         with:
-          name: autose-review-issue-${{ needs.gate.outputs.issue }}-round-${{ needs.gate.outputs.round }}
+          name: autose-review-issue-${{ needs.gate.outputs.issue }}-round-${{ needs.gate.outputs.round }}-pr${{ needs.gate.outputs.pr || 'auto' }}
           path: review
       - name: Check out the state branch
         run: |

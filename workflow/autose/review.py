@@ -110,7 +110,9 @@ def main(argv=None):
     p.add_argument("--round", default="1")
     p.add_argument("--work", required=True)
     p.add_argument("--out", required=True)
+    p.add_argument("--variant", default="default")
     a = p.parse_args(argv)
+    model = config.REVIEWER_VARIANTS.get(a.variant or "default", config.REVIEWER_MODEL)
     token = os.environ.pop("GITHUB_TOKEN", None)
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -130,7 +132,7 @@ def main(argv=None):
     ts = RecordingToolset(work, "reviewer", SUBMIT, can_run=True)
     user = (issue_block(issue) + f"\n\n# Pull request #{a.pr} diff\n\n```diff\n{diff[:60000]}\n```")
     try:
-        r = run_agent("reviewer", config.REVIEWER_MODEL, prompt("review"), user, ts, usage,
+        r = run_agent("reviewer", model, prompt("review"), user, ts, usage,
                       out / "logs" / "reviewer.jsonl", validate=validate_factory(files, ts.commands))
         r["findings"], dropped = filter_findings(r.get("findings") or [], files, ts.commands)
         note = ""
@@ -140,10 +142,10 @@ def main(argv=None):
              "No automated changes are requested; the human reviewer should look closely.",
              "requirements": [], "findings": []}
         dropped, note = [], "invalid"
-    r.update({"round": a.round, "pr": int(a.pr), "model": config.REVIEWER_MODEL,
+    r.update({"round": a.round, "pr": int(a.pr), "model": model, "variant": a.variant,
               "tokens": usage.to_dict(), "note": note, "dropped": dropped})
     (out / "review.json").write_text(json.dumps(r, indent=2))
-    body = render(r, config.REVIEWER_MODEL, a.round, dropped)
+    body = render(r, model, a.round, dropped)
     (out / "review.md").write_text(body)
     if token:
         flag = "--approve" if r["verdict"] == "approve" else "--request-changes"

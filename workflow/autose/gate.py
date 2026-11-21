@@ -21,7 +21,9 @@ def role(login, token):
 
 
 def decide(event_name, ev, token):
-    """Return (run, mode, issue, round, resume_from, pr, reason)."""
+    """Return (run, mode, issue, round, resume_from, pr, reason).
+
+    For review mode, the resume_from slot carries the reviewer variant."""
     no = lambda why: (False, "", "", "", "", "", why)  # noqa: E731
     if event_name == "issues":
         if ev.get("action") != "labeled" or (ev.get("label") or {}).get("name") != config.LABEL:
@@ -45,10 +47,16 @@ def decide(event_name, ev, token):
         num = ev["issue"]["number"]
         if "pull_request" in ev["issue"]:
             pr = gh.api(f"repos/{config.REPO}/pulls/{num}", token)
-            m = re.fullmatch(re.escape(config.BRANCH_PREFIX) + r"(\d+)", pr["head"]["ref"])
+            ref = pr["head"]["ref"]
+            m = (re.fullmatch(re.escape(config.BRANCH_PREFIX) + r"(\d+)", ref)
+                 or re.fullmatch(re.escape(config.SEED_PREFIX) + r"(\d+)-[\w-]+", ref))
             if not m:
-                return no("pull request was not opened by autose")
-            return True, "review", m.group(1), "manual", "", str(num), "review-only rerun requested"
+                return no("pull request was not opened by autose and is not a seeded PR")
+            v = re.search(r"variant=([\w-]+)", c["body"])
+            variant = v.group(1) if v else "default"
+            if variant not in config.REVIEWER_VARIANTS:
+                return no(f"unknown reviewer variant {variant}")
+            return True, "review", m.group(1), "manual", variant, str(num), f"review-only ({variant}) requested"
         return True, "full", str(num), "1", "S1", "", "run requested by comment"
 
     if event_name == "workflow_dispatch":

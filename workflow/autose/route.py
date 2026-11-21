@@ -28,7 +28,8 @@ def main(argv=None):
     review = json.loads((Path(a.review_dir) / "review.json").read_text())
     st = State(a.state, n)
     manual = not a.round.isdigit()
-    rdir = st.issue_dir / (f"review-manual-{os.environ.get('GITHUB_RUN_ID', 'local')}" if manual else f"round-{a.round}")
+    tag = f"pr{review.get('pr')}-{review.get('variant', 'default')}-{os.environ.get('GITHUB_RUN_ID', 'local')}"
+    rdir = st.issue_dir / (f"review-manual-{tag}" if manual else f"round-{a.round}")
     rdir.mkdir(parents=True, exist_ok=True)
     for f in ("review.json", "review.md"):
         shutil.copy2(Path(a.review_dir) / f, rdir / f)
@@ -50,7 +51,8 @@ def main(argv=None):
         else:
             msg = f"Review round {rnd}: **approved**. The workflow ends here; a person decides whether to merge."
     else:
-        msg = f"Review-only rerun: **{verdict.replace('_', ' ')}**. No automatic round is started."
+        msg = (f"Review-only run on PR #{review.get('pr')} (reviewer `{review.get('model')}`, variant "
+               f"`{review.get('variant')}`): **{verdict.replace('_', ' ')}**. No automatic round is started.")
     st.commit_push(f"issue {n} review {a.round}: {verdict}", token)
     if token:
         gh.comment(n, msg + f"\n\nReview: {gh.run_url()}", token)
