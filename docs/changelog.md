@@ -16,6 +16,7 @@ See the [Contributing Guide](contributing.md) for details.
 
 ### Fixed
 
+* Skip headings with the class `notoc` in the table of contents of the `toc` extension.
 * Support automatic links with URL schemes other than HTTP and FTP, such as
   `<ssh://example.org>` (#1244).
 * Fix quadratic-time id generation in the `toc` extension when many headers

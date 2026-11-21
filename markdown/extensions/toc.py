@@ -193,6 +193,15 @@ def remove_fnrefs(root: etree.Element) -> etree.Element:
     return root
 
 
+def flatten(tokens):
+    """ Flatten nested TOC tokens back into a list, dropping children. """
+    out = []
+    for t in tokens:
+        out.append({k: v for k, v in t.items() if k != 'children'})
+        out.extend(flatten(t.get('children', [])))
+    return out
+
+
 def nest_toc_tokens(toc_list):
     """Given an unsorted list with errors and skips, return a nested one.
 
@@ -393,6 +402,7 @@ class TocTreeprocessor(Treeprocessor):
         id_counters: dict[str, int] = {}
 
         toc_tokens = []
+        skip = set()
         for el in doc.iter():
             if isinstance(el.tag, str) and self.header_rgx.match(el.tag):
                 self.set_level(el)
@@ -411,6 +421,9 @@ class TocTreeprocessor(Treeprocessor):
                     # Remove the data-toc-label attribute as it is no longer needed
                     del el.attrib['data-toc-label']
 
+                if 'notoc' in el.attrib.get('class', '').split():
+                    skip.add(el.attrib['id'])
+
                 if int(el.tag[-1]) >= self.toc_top and int(el.tag[-1]) <= self.toc_bottom:
                     toc_tokens.append({
                         'level': int(el.tag[-1]),
@@ -426,7 +439,8 @@ class TocTreeprocessor(Treeprocessor):
                     self.add_permalink(el, el.attrib["id"])
 
         toc_tokens = nest_toc_tokens(toc_tokens)
-        div = self.build_toc_div(toc_tokens)
+        visible = nest_toc_tokens([t for t in flatten(toc_tokens) if t['id'] not in skip])
+        div = self.build_toc_div(visible)
         if self.marker:
             self.replace_marker(doc, div)
 
