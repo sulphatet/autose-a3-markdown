@@ -1,0 +1,29 @@
+diff --git a/docs/changelog.md b/docs/changelog.md
+index cba971a..c671faa 100644
+--- a/docs/changelog.md
++++ b/docs/changelog.md
+@@ -33,8 +33,9 @@ See the [Contributing Guide](contributing.md) for details.
+   with no matching `-->`).
+ * Fix regression in `BacktickInlineProcessor` where text could be lost when opening
+   and closing backticks did not match (#1668).
+-* Escape the language name in the `codehilite` extension's non-Pygments output to
+-  maintain consistency with Pygments output.
++* Prevent `TypeError` when converting fenced code blocks with `fenced_code` and
++  `attr_list` enabled (and `codehilite` disabled) containing attribute modifiers
++  such as `linenums`, `guess_lang`, or `noclasses`.
+ * Preserve attributes without a value in the `attr_list` extension exactly as
+   provided, rather than rendering them as `key="key"`, so the same source
+   renders consistently under both the `html` and `xhtml` output formats
+diff --git a/markdown/extensions/fenced_code.py b/markdown/extensions/fenced_code.py
+index 6e2ed6b..7cba6b0 100644
+--- a/markdown/extensions/fenced_code.py
++++ b/markdown/extensions/fenced_code.py
+@@ -158,7 +158,7 @@ class FencedBlockPreprocessor(Preprocessor):
+                         # `use_pygments` key could be either set to `False` or not defined. It is omitted from output.
+                         kv_pairs = ''.join(
+                             f' {sanitize_name(k)}="{_escape_attrib_html(v)}"'
+-                            for k, v in config.items() if k != 'use_pygments'
++                            for k, v in config.items() if k != 'use_pygments' and isinstance(v, str)
+                         )
+                     code = self._escape(m.group('code'))
+                     code = f'<pre{id_attr}{class_attr}><code{lang_attr}{kv_pairs}>{code}</code></pre>'
