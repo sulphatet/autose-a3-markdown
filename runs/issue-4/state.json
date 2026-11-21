@@ -1,0 +1,44 @@
+{
+  "base_sha": "3a7eb8cf0219740f96c3e3f991c12b63aacbc9b2",
+  "issue": 4,
+  "rounds": {
+    "1": {
+      "S1": {
+        "artifact_sha": "988fe441f179c4a6395f9cbd92dcdc29971122ef95472ce5db344825a9ab34e9",
+        "attempts": 0,
+        "input_hash": "0264fa32987a42d7bb63ec4e39e94e3bbc0ade1d315fbce78865b63ce22fe528",
+        "status": "passed"
+      },
+      "S2": {
+        "artifact_sha": "1b0a2d801f9773631d68e77677f69ac23d9a2ee9c2aa420104ad6b60c783c618",
+        "attempts": 0,
+        "input_hash": "dc93122b65da8eb0d98fab4ff6a7b54c8a29337d620ca2db49ef5031de545668",
+        "status": "passed"
+      },
+      "S3": {
+        "artifact_sha": "bc756ef23b5a58c58b800390fb441e88f715e2cbc4d1d8959a4d29ce7e0e0bf9",
+        "attempts": 1,
+        "input_hash": "2d67a9333d24632e498d15ad61812e8765291e4a030d1cd2b55673e362a4d972",
+        "status": "passed"
+      },
+      "S4": {
+        "attempts": 0,
+        "reason": "tester could not produce valid tests: 0 new test(s) fail on base as expected: []",
+        "status": "stopped"
+      }
+    }
+  },
+  "tokens": {
+    "round-1": {
+      "by_model": {
+        "gemini-3.5-flash-lite": {
+          "output": 6845,
+          "prompt": 485988,
+          "total": 492833
+        }
+      },
+      "calls": 47,
+      "total": 492833
+    }
+  }
+}

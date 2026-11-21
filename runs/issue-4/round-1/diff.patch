@@ -1,0 +1,40 @@
+diff --git a/docs/changelog.md b/docs/changelog.md
+index cba971a..e261bb2 100644
+--- a/docs/changelog.md
++++ b/docs/changelog.md
+@@ -14,6 +14,11 @@ See the [Contributing Guide](contributing.md) for details.
+ 
+ ## [Unreleased]
+ 
++### Added
++
++* `wikilinks` extension: added support for pipe-separated link text syntax
++  `[[Target Page|what the reader sees]]` (#4).
++
+ ### Fixed
+ 
+ * Support automatic links with URL schemes other than HTTP and FTP, such as
+diff --git a/markdown/extensions/wikilinks.py b/markdown/extensions/wikilinks.py
+index 70d0ea5..3600a44 100644
+--- a/markdown/extensions/wikilinks.py
++++ b/markdown/extensions/wikilinks.py
+@@ -59,7 +59,7 @@ class WikiLinkExtension(Extension):
+         self.md = md
+ 
+         # append to end of inline patterns
+-        WIKILINK_RE = r'\[\[([\w0-9_ -]+)\]\]'
++        WIKILINK_RE = r'\[\[([\w0-9_ -]+)(?:\|([^\]]+))?\]\]'
+         wikilinkPattern = WikiLinksInlineProcessor(WIKILINK_RE, self.getConfigs())
+         wikilinkPattern.md = md
+         md.inlinePatterns.register(wikilinkPattern, 'wikilink', 75)
+@@ -77,8 +77,9 @@ class WikiLinksInlineProcessor(InlineProcessor):
+             base_url, end_url, html_class = self._getMeta()
+             label = m.group(1).strip()
+             url = self.config['build_url'](label, base_url, end_url)
++            text = m.group(2).strip() if m.group(2) else label
+             a = etree.Element('a')
+-            a.text = label
++            a.text = text
+             a.set('href', url)
+             if html_class:
+                 a.set('class', html_class)
