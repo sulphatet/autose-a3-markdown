@@ -56,11 +56,12 @@ def issue(number, token):
             "author": d["user"]["login"], "url": d["html_url"]}
 
 
-def upsert_progress(number, body, token):
-    """Keep one progress comment per issue up to date (ADR-004)."""
+def upsert_progress(number, body, token, key=""):
+    """Keep one progress comment per issue (and per experiment variant) up to date (ADR-004)."""
+    marker = MARKER if not key else f"<!-- autose-progress {key} -->"
     comments = api(f"repos/{config.REPO}/issues/{number}/comments?per_page=100", token)
-    mine = [c for c in comments if MARKER in (c.get("body") or "")]
-    text = MARKER + "\n" + body
+    mine = [c for c in comments if (c.get("body") or "").startswith(marker + "\n")]
+    text = marker + "\n" + body
     if mine:
         api(f"repos/{config.REPO}/issues/comments/{mine[-1]['id']}", token, "PATCH", {"body": text})
     else:

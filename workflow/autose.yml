@@ -22,6 +22,11 @@ on:
         default: S1
         type: choice
         options: [S1, S2, S3]
+      variant:
+        description: Stage 1 prompt variant (experiment E2)
+        default: default
+        type: choice
+        options: [default, spec-v3]
 
 permissions: {}               # every job asks for what it needs (ADR-005)
 
@@ -41,6 +46,7 @@ jobs:
       round: ${{ steps.gate.outputs.round }}
       resume_from: ${{ steps.gate.outputs.resume_from }}
       pr: ${{ steps.gate.outputs.pr }}
+      variant: ${{ steps.gate.outputs.variant }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -110,14 +116,15 @@ jobs:
           ISSUE: ${{ needs.gate.outputs.issue }}
           ROUND: ${{ needs.gate.outputs.round }}
           RESUME_FROM: ${{ needs.gate.outputs.resume_from }}
+          VARIANT: ${{ needs.gate.outputs.variant }}
         run: >
           python -m autose.orchestrator --issue "$ISSUE" --round "$ROUND" --resume-from "$RESUME_FROM"
-          --work work --state state --out out --logs logs
+          --variant "$VARIANT" --work work --state state --out out --logs logs
       - name: Upload stage artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: autose-issue-${{ needs.gate.outputs.issue }}-round-${{ needs.gate.outputs.round }}
+          name: autose-issue-${{ needs.gate.outputs.issue }}-${{ needs.gate.outputs.variant }}-round-${{ needs.gate.outputs.round }}
           path: out/
           if-no-files-found: ignore
       - name: Upload agent transcripts (for audit; never given to other agents)
@@ -172,7 +179,7 @@ jobs:
           PR: ${{ needs.build.outputs.pr || needs.gate.outputs.pr }}
           ISSUE: ${{ needs.gate.outputs.issue }}
           ROUND: ${{ needs.gate.outputs.round }}
-          VARIANT: ${{ needs.gate.outputs.mode == 'review' && needs.gate.outputs.resume_from || 'default' }}
+          VARIANT: ${{ needs.gate.outputs.mode == 'review' && needs.gate.outputs.variant || 'default' }}
         run: >
           python -m autose.review --pr "$PR" --issue "$ISSUE" --round "$ROUND" --variant "$VARIANT"
           --work work --out review
@@ -219,4 +226,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           ISSUE: ${{ needs.gate.outputs.issue }}
           ROUND: ${{ needs.gate.outputs.round }}
-        run: python3 -m autose.route --issue "$ISSUE" --round "$ROUND" --review-dir review --state state
+          VARIANT: ${{ needs.gate.outputs.mode == 'full' && needs.gate.outputs.variant || 'default' }}
+        run: >
+          python3 -m autose.route --issue "$ISSUE" --round "$ROUND" --review-dir review --state state
+          --variant "$VARIANT"

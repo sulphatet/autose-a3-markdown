@@ -17,4 +17,25 @@ Everything else is identical: prompt, inputs (issue + diff + repository at PR he
 - routing: `kind` matches the label;
 - findings dropped by code for missing evidence.
 
-## E2: to be decided (planned: ADR-001, separate tester vs implementer writes its own tests)
+## E2: stage 1 readiness rule (tests the A1 adaptation and ADR-007's stage 1 check)
+
+**Why:** in the first round of runs, the A1 skill under prompt v2 stopped two clear issues at stage 1:
+- #3: "is this intended behaviour?";
+- #5: an invented question about configurability, with all requirements marked Needs-Clarification.
+
+The vague issue #6 stopped as intended.
+
+**Question:** does a stricter readiness rule let clear issues through without letting the vague one through?
+
+| Variant | Stage 1 prompt | Trigger |
+| --- | --- | --- |
+| A (current default) | `workflow/prompts/spec.md` (v2) | label `autose` / `/autose` |
+| B | `workflow/prompts/spec_v3.md`: v2 plus rule 5a. An `[S]` requirement with a testable AC is Ready unless a P1 question blocks it; P2/P3 never block; never ask whether reported behaviour is "intended". | `/autose variant=spec-v3` on the issue |
+
+Everything after stage 1 is identical: models, prompts, checks, budgets, reviewer. Variant B runs keep separate state (`runs/issue-<n>-spec-v3/`), branches (`autose/issue-<n>-spec-v3`), PRs and progress comments, so variant A's results are never overwritten. Both variants run on all five issues (#2-#6) at the same base commit.
+
+**Measures:**
+- stage 1 pass rate per issue;
+- whether #6 (vague) still stops at stage 1, which is the safety side of the trade-off;
+- for issues that get through, the stage reached and the hidden-test results;
+- stage 1 tokens.

@@ -22,11 +22,12 @@ def main(argv=None):
     p.add_argument("--round", required=True)
     p.add_argument("--review-dir", required=True)
     p.add_argument("--state", required=True)
+    p.add_argument("--variant", default="default")
     a = p.parse_args(argv)
     token = os.environ.pop("GITHUB_TOKEN", None)
     n = int(a.issue)
     review = json.loads((Path(a.review_dir) / "review.json").read_text())
-    st = State(a.state, n)
+    st = State(a.state, n, config.suffix(a.variant))
     manual = not a.round.isdigit()
     tag = f"pr{review.get('pr')}-{review.get('variant', 'default')}-{os.environ.get('GITHUB_RUN_ID', 'local')}"
     rdir = st.issue_dir / (f"review-manual-{tag}" if manual else f"round-{a.round}")
@@ -42,7 +43,8 @@ def main(argv=None):
         if verdict == "request_changes" and rnd < config.MAX_REVIEW_ROUNDS:
             resume = "S2" if kind == "approach" else "S3"
             gh.gh(["workflow", "run", "autose.yml", "--repo", config.REPO, "--ref", "main",
-                   "-f", f"issue={n}", "-f", f"round={rnd + 1}", "-f", f"resume_from={resume}"], token)
+                   "-f", f"issue={n}", "-f", f"round={rnd + 1}", "-f", f"resume_from={resume}",
+                   "-f", f"variant={a.variant or 'default'}"], token)
             msg = (f"Review round {rnd}: **changes requested** (`{kind}`). Starting round {rnd + 1} "
                    f"from stage {resume[1]} ({'Design' if resume == 'S2' else 'Implementation'}).")
         elif verdict == "request_changes":
