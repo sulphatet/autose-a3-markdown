@@ -16,9 +16,22 @@
         "status": "passed"
       },
       "S3": {
-        "attempts": 3,
+        "artifact_sha": "4fb796577fee77ad9a1f9b82378c1a4b0ebeb7e0c2027256e4bbd766d3eaf32c",
+        "attempts": 5,
+        "input_hash": "d26844695c2f8086ca0c36b2352b56faeef3afc3dc7e50461d503fbdbbc70269",
         "reason": "Implementer stopped: run used 2005443 tokens, budget 2000000",
-        "status": "stopped"
+        "status": "passed"
+      },
+      "S4": {
+        "artifact_sha": "9c46724ae43d8fafbba1634da935ee627c5e787158219117253a3bb685c159ea",
+        "attempts": 0,
+        "status": "passed"
+      },
+      "S5": {
+        "artifact_sha": "3d0b45b9be3235987153e105b01c427d44b12f23b02dc0900ec281610c9256ac",
+        "attempts": 0,
+        "pr": 9,
+        "status": "passed"
       }
     }
   },
@@ -26,13 +39,13 @@
     "round-1": {
       "by_model": {
         "gemini-3.5-flash-lite": {
-          "output": 13159,
-          "prompt": 1992284,
-          "total": 2005443
+          "output": 4208,
+          "prompt": 1752922,
+          "total": 1757130
         }
       },
-      "calls": 100,
-      "total": 2005443
+      "calls": 84,
+      "total": 1757130
     }
   }
 }

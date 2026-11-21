@@ -1,20 +1,12 @@
-# Implementation, attempt 2
+# Implementation, attempt 5
 
-Implementer summary: Resolved fenced_code crash when linenums, guess_lang, noclasses, or other non-string/boolean config options are present in attribute lists with codehilite disabled by filtering non-string config values from kv_pairs in FencedBlockPreprocessor.run. Added changelog entry.
+Implementer summary: Fixed `TypeError` crash in fenced_code when codehilite is disabled and attr_list is enabled with boolean or config attributes like linenums, guess_lang, or noclasses by filtering out None, bool, and list values when formatting attribute key-value pairs.
 
 ## Pipeline check (stage 3, `checks.check_build`)
 
-**Check: FAIL**
+**Check: PASS**
 
-- changed files: ['docs/changelog.md', 'markdown/extensions/fenced_code.py']
+- changed files: ['docs/changelog.md', 'markdown/extensions/fenced_code.py', 'tests/test_autose_issue_2.py']
 - `pip install -e .` passed
 - `import + smoke call` passed
-- `flake8 markdown` failed (exit 1):
-
-```
-markdown/postprocessors.py:90:40: E201 whitespace after '{'
-markdown/postprocessors.py:90:57: E202 whitespace before '}'
-markdown/postprocessors.py:90:65: E201 whitespace after '{'
-markdown/postprocessors.py:90:82: E202 whitespace before '}'
-
-```
+- `flake8 markdown`: no new errors (4 pre-existing on the base commit ignored)

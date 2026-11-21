@@ -1,29 +1,30 @@
 diff --git a/docs/changelog.md b/docs/changelog.md
-index cba971a..c671faa 100644
+index cba971a..10aab45 100644
 --- a/docs/changelog.md
 +++ b/docs/changelog.md
-@@ -33,8 +33,9 @@ See the [Contributing Guide](contributing.md) for details.
-   with no matching `-->`).
- * Fix regression in `BacktickInlineProcessor` where text could be lost when opening
-   and closing backticks did not match (#1668).
--* Escape the language name in the `codehilite` extension's non-Pygments output to
--  maintain consistency with Pygments output.
-+* Prevent `TypeError` when converting fenced code blocks with `fenced_code` and
-+  `attr_list` enabled (and `codehilite` disabled) containing attribute modifiers
-+  such as `linenums`, `guess_lang`, or `noclasses`.
- * Preserve attributes without a value in the `attr_list` extension exactly as
-   provided, rather than rendering them as `key="key"`, so the same source
-   renders consistently under both the `html` and `xhtml` output formats
+@@ -16,6 +16,10 @@ See the [Contributing Guide](contributing.md) for details.
+ 
+ ### Fixed
+ 
++* Fix `TypeError` crash in `fenced_code` when `attr_list` is enabled and `codehilite`
++  is disabled, upon encountering boolean or configuration attributes such as
++  `linenums`, `guess_lang`, or `noclasses`.
++
+ * Support automatic links with URL schemes other than HTTP and FTP, such as
+   `<ssh://example.org>` (#1244).
+ * Fix quadratic-time id generation in the `toc` extension when many headers
 diff --git a/markdown/extensions/fenced_code.py b/markdown/extensions/fenced_code.py
-index 6e2ed6b..7cba6b0 100644
+index 6e2ed6b..2544d50 100644
 --- a/markdown/extensions/fenced_code.py
 +++ b/markdown/extensions/fenced_code.py
-@@ -158,7 +158,7 @@ class FencedBlockPreprocessor(Preprocessor):
+@@ -157,8 +157,8 @@ class FencedBlockPreprocessor(Preprocessor):
+                         # pairs were defined on the code block, and the `use_pygments` key was not set to `True`. The
                          # `use_pygments` key could be either set to `False` or not defined. It is omitted from output.
                          kv_pairs = ''.join(
-                             f' {sanitize_name(k)}="{_escape_attrib_html(v)}"'
+-                            f' {sanitize_name(k)}="{_escape_attrib_html(v)}"'
 -                            for k, v in config.items() if k != 'use_pygments'
-+                            for k, v in config.items() if k != 'use_pygments' and isinstance(v, str)
++                            f' {sanitize_name(k)}="{_escape_attrib_html(str(v))}"'
++                            for k, v in config.items() if k != 'use_pygments' and v is not None and not isinstance(v, (bool, list))
                          )
                      code = self._escape(m.group('code'))
                      code = f'<pre{id_attr}{class_attr}><code{lang_attr}{kv_pairs}>{code}</code></pre>'
