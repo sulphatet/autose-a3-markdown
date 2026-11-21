@@ -1,0 +1,41 @@
+{
+  "requirements": [
+    {
+      "status": "met",
+      "requirement": "Support [[Target|text]] syntax in wikilinks.",
+      "evidence": "markdown/extensions/wikilinks.py:62,81"
+    },
+    {
+      "status": "met",
+      "evidence": "tests/test_seed_issue_4_correct.py:12-14",
+      "requirement": "Plain [[Target]] should keep working exactly as now."
+    }
+  ],
+  "kind": "none",
+  "summary": "The pull request correctly implements the requested feature for the wikilinks extension. It allows for an optional link text using the [[Target|text]] syntax, while preserving the existing behavior for [[Target]]. The code changes are correct and the provided tests verify the new functionality.",
+  "verdict": "approve",
+  "findings": [],
+  "round": "manual",
+  "pr": 10,
+  "model": "gemini-3.1-flash-lite",
+  "variant": "default",
+  "tokens": {
+    "calls": 11,
+    "total": 39808,
+    "by_model": {
+      "gemini-3.1-flash-lite": {
+        "prompt": 39316,
+        "output": 492,
+        "total": 39808
+      }
+    }
+  },
+  "note": "",
+  "dropped": [
+    {
+      "description": "The PR correctly implements the requested feature to support [[Target|text]] in the wikilinks extension, while maintaining backward compatibility for [[Target]]. The implementation uses a regex that correctly handles the optional label part, and the logic in handleMatch correctly selects the label or the target page as the link text. The provided tests confirm the functionality.",
+      "evidence": "markdown/extensions/wikilinks.py:62,81",
+      "severity": "minor"
+    }
+  ]
+}
