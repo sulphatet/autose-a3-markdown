@@ -7,7 +7,8 @@ A GitHub Actions workflow in which agents turn an issue into a tested and review
 - **Fork of:** https://github.com/Python-Markdown/markdown
 - **Pinned commit:** `3f2c5510bd8d64a73ec18342f740371bcde9b20c` ("Avoid rescanning for a comment close after unclosed comments"). The upstream README was moved to `README.upstream.md`.
 - **Models (ADR-006):** `gemini-3.5-flash-lite` for the spec, design, implementation and test agents; `gemini-3.1-flash-lite` for the independent reviewer. Gemini API free tier.
-- **Report:** `report.pdf`. **Demo:** link to be added.
+- **Report:** `report.pdf`. **Demo video:** DEMO_LINK_HERE
+- **Results:** [`results/runs.md`](results/runs.md) (every run, PR and review) and [`results/results.csv`](results/results.csv). 23 runs, 11.5M tokens in total.
 
 ## How to trigger it
 
