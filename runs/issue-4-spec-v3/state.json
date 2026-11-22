@@ -1,0 +1,49 @@
+{
+  "base_sha": "f859ef281410381b1fd79825fe9a230ba0d9e17e",
+  "issue": 4,
+  "rounds": {
+    "1": {
+      "S1": {
+        "artifact_sha": "fd416087c39e1a651758b196a86397b15541a405423107d296f794bd32a3fe34",
+        "attempts": 0,
+        "input_hash": "580e6454f948fc0c37049849b2725a643bbfb040a73d06aa95447595d95b1e8b",
+        "status": "passed"
+      },
+      "S2": {
+        "artifact_sha": "7fb58399e8f6e7f653c8b9d93cdbe7e6f9d9a54c5063e26e39e27f9bcc29cbc9",
+        "attempts": 0,
+        "input_hash": "ce6f908839f6aaf42e79369444c1c36d82b807dca8ae007b6082fc2144a02ae3",
+        "status": "passed"
+      },
+      "S3": {
+        "artifact_sha": "63448a7e2733ad58345e4db27ed94a612c75f5b218da58113149b3de879def25",
+        "attempts": 6,
+        "input_hash": "2d58cc2a8550051b309357ecd0d71351e44aba6f8b48f2c748552d8eea8ef82b",
+        "status": "passed"
+      },
+      "S4": {
+        "artifact_sha": "07a7b71b34c0037026e7b19562e4390b2b112c38590de4616d56ba24a69bbcec",
+        "attempts": 0,
+        "status": "passed"
+      },
+      "S5": {
+        "attempts": 0,
+        "reason": "budget used up (3 attempts x 2 designs). Last failure:\nCI failed on the pull request:\n14 check run(s); failing: ['lint (checkspelling)']\n`lint (checkspelling)` (failure), last lines of its log:\n\n```\n\n```",
+        "status": "stopped"
+      }
+    }
+  },
+  "tokens": {
+    "round-1": {
+      "by_model": {
+        "gemini-3.5-flash-lite": {
+          "output": 8701,
+          "prompt": 820399,
+          "total": 829100
+        }
+      },
+      "calls": 92,
+      "total": 829100
+    }
+  }
+}
