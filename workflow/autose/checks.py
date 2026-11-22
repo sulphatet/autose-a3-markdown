@@ -249,7 +249,30 @@ def check_test_file(root, test_file, ac_ids):
     code, out = run_command(["python", "-m", "flake8", test_file], root)
     if code != 0:
         reasons.append(f"flake8 on the test file failed (upstream CI lints tests):\n\n```\n{out[-2000:]}\n```")
-    return CheckResult(not missing and code == 0, reasons, {"names": names})
+    prose = _prose(p)
+    if prose:
+        reasons.append("the test file has docstrings or comments " + ", ".join(prose[:5])
+                       + ": remove them. Upstream CI spell-checks comments and docstrings under `tests/`, "
+                       "and code names in them fail it (found in run 45011011795)")
+    return CheckResult(not missing and code == 0 and not prose, reasons, {"names": names})
+
+
+def _prose(path):
+    """Line numbers of docstrings and comments, which upstream's spell checker reads."""
+    import io
+    import tokenize
+    src = Path(path).read_text()
+    lines = []
+    for node in ast.walk(ast.parse(src)):
+        if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)) and node.body:
+            first = node.body[0]
+            if isinstance(first, ast.Expr) and isinstance(getattr(first, "value", None), ast.Constant) \
+                    and isinstance(first.value.value, str):
+                lines.append(f"line {first.lineno}")
+    for tok in tokenize.generate_tokens(io.StringIO(src).readline):
+        if tok.type == tokenize.COMMENT and not re.match(r"#\s*noqa", tok.string):
+            lines.append(f"line {tok.start[0]}")
+    return sorted(set(lines), key=lambda x: int(x.split()[1]))
 
 
 def _module(test_file):
