@@ -22,3 +22,4 @@ The decisions and their reasoning are the author's. Claude Code helped write the
 | [012](ADR-012.md) | PAT handling (D5/D9) | Release in-process; PAT held in memory, passed only to push and PR commands | Separate release step | Accepted, supersedes part of ADR-005 |
 | [013](ADR-013.md) | Lint in the build check (D7) | Count only lint errors the change introduces (baseline on base commit) | Require `flake8 markdown` to pass outright | Accepted, supersedes part of ADR-007 |
 | [014](ADR-014.md) | Token budget (D9) | 8M tokens per run | Keep 2M | Accepted, supersedes part of ADR-009 |
+| [015](ADR-015.md) | Stage 1 check (D7) | Pass on any testable AC; A1 verdict advisory | Strict gate on the A1 verdict and Ready `Must` | Accepted, supersedes part of ADR-007 |

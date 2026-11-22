@@ -228,7 +228,7 @@ class Run:
         if not result.ok:
             p1 = [l for l in a["register_md"].splitlines() if re.search(r"\|\s*P1\s*\|", l)]
             if self.token and p1:
-                gh.comment(self.n, "**autose stopped at stage 1 (Requirements).** The issue is not yet specific "
+                gh.comment(self.n, "**autose stopped at stage 1 (Requirements).** The issue gives no testable behaviour "
                            "enough to implement. Open questions (P1), from the spec agent:\n\n"
                            + "\n".join(p1[:10]) + "\n\nEdit the issue to answer them and re-apply the label.",
                            self.token)
