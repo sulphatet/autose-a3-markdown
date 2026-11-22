@@ -1,0 +1,33 @@
+{
+  "base_sha": "f859ef281410381b1fd79825fe9a230ba0d9e17e",
+  "issue": 2,
+  "rounds": {
+    "1": {
+      "S1": {
+        "artifact_sha": "0fe5562d8fbaa771aa9c7470fb814472a02ecb3e5170f5e9a83b59107349dd8d",
+        "attempts": 0,
+        "input_hash": "da83eff3ac2a97dd6af4cd2dbc4e1e06723c0513ca21ac3cf7b12bc5b9436980",
+        "status": "passed"
+      },
+      "S2": {
+        "attempts": 0,
+        "input_hash": "ebd328ca14eda85c2338f982ee5ffaa0bc58f7c22a39eca071bb6ba7573f7d5f",
+        "reason": "Designer stopped: model unavailable: gemini-3.5-flash-lite failed after 6 attempts; last error HTTP 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n",
+        "status": "stopped"
+      }
+    }
+  },
+  "tokens": {
+    "round-1": {
+      "by_model": {
+        "gemini-3.5-flash-lite": {
+          "output": 3441,
+          "prompt": 702527,
+          "total": 705968
+        }
+      },
+      "calls": 40,
+      "total": 705968
+    }
+  }
+}
