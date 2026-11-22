@@ -1,0 +1,44 @@
+diff --git a/tests/test_autose_issue_3.py b/tests/test_autose_issue_3.py
+new file mode 100644
+index 0000000..83e4a58
+--- /dev/null
++++ b/tests/test_autose_issue_3.py
+@@ -0,0 +1,38 @@
++from markdown.test_tools import TestCase
++import markdown
++
++
++class TestAutoseIssue3(TestCase):
++    def test_AC_FR_001_1(self):
++        text = "Main[^1].\n\n[^1]: First\n\n    [^2]: Second\n"
++        # Ensure no exception is raised and "Second" does not vanish silently
++        html = markdown.markdown(text, extensions=["footnotes"])
++        self.assertIn("Second", html)
++
++    def test_AC_FR_002_1(self):
++        text = "Main[^1].\n\n[^1]: First\n\n    [^2]: Second\n"
++        self.assertMarkdownRenders(
++            text,
++            self.dedent(
++                """
++                <p>Main<sup id="fnref:1"><a class="footnote-ref"
++                href="#fn:1">1</a></sup>.</p>
++                <div class="footnote">
++                <hr />
++                <ol>
++                <li id="fn:1">
++                <p>First&#160;<a class="footnote-backref"
++                href="#fnref:1"
++                title="Jump back to footnote 1 in the text">&#8617;</a></p>
++                </li>
++                <li id="fn:2">
++                <p>Second&#160;<a class="footnote-backref"
++                href="#fnref:2"
++                title="Jump back to footnote 2 in the text">&#8617;</a></p>
++                </li>
++                </ol>
++                </div>
++                """
++            ),
++            extensions=["footnotes"]
++        )

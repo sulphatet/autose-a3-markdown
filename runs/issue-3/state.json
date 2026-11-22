@@ -4,9 +4,27 @@
   "rounds": {
     "1": {
       "S1": {
+        "artifact_sha": "4012e13e5ab6d5d81b6f42e1a7e26f7d782a2556c380bbe2d9d1211bb473b835",
         "attempts": 0,
         "input_hash": "f742c81498f9a7f4767b6c09acc59aeaa5f003de78483807764e905334dc6bd7",
         "reason": "A1 skill verdict is `NOT READY`: the issue is not specific enough to implement; V-Q4 is PASS; no requirement is marked `Ready` in the SRS tables",
+        "status": "passed"
+      },
+      "S2": {
+        "artifact_sha": "db0ac4d4cfc7074c3b1907fe251ba71fb80ace8f42deda00c456514d7337970f",
+        "attempts": 0,
+        "input_hash": "fc88ffd99a98111843e0cb4ab9ab39a57dd4e77e5f9fc2e6b94a88f60adb8390",
+        "status": "passed"
+      },
+      "S3": {
+        "artifact_sha": "178fe70900545a8f4d3fa6131f795e73e0744667bc47797576472a9ceaa53529",
+        "attempts": 6,
+        "input_hash": "b4c397e2557c93142c2640e084ccb71ff7866ebc54a2cb4de40c6a180b0a19a4",
+        "status": "passed"
+      },
+      "S4": {
+        "attempts": 0,
+        "reason": "budget used up (3 attempts x 2 designs). Last failure:\nTests failed:\nnew tests fail on the branch:\n\n```\ntest_AC_FR_001_1 (tests.test_autose_issue_3.TestAutoseIssue3.test_AC_FR_001_1) ... ok\ntest_AC_FR_002_1 (tests.test_autose_issue_3.TestAutoseIssue3.test_AC_FR_002_1) ... FAIL\n\n======================================================================\nFAIL: test_AC_FR_002_1 (tests.test_autose_issue_3.TestAutoseIssue3.test_AC_FR_002_1)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/runner/work/autose-a3-markdown/autose-a3-markdown/work/tests/test_autose_issue_3.py\", line 14, in test_AC_FR_002_1\n    self.assertMarkdownRenders(\n  File \"/home/runner/work/autose-a3-markdown/autose-a3-markdown/work/markdown/test_tools.py\", line 77, in assertMarkdownRenders\n    self.assertMultiLineEqual(output, expected)\nAssertionError: '<p>M[39 chars]-ref\" href=\"#fn:1\">1</a></sup>.</p>\\n<pre><cod[220 chars]div>' != '<p>M[39 chars]-ref\"\\nhref=\"#fn:1\">1</a></sup>.</p>\\n<div cla[328 chars]div>'\nDiff is 765 characters long. Set self.maxDiff to None to see it.\n\n----------------------------------------------------------------------\nRan 2 tests in 0.026s\n\nFAILED (failures=1)\n\n```",
         "status": "stopped"
       }
     }
@@ -15,13 +33,13 @@
     "round-1": {
       "by_model": {
         "gemini-3.5-flash-lite": {
-          "output": 1966,
-          "prompt": 8290,
-          "total": 10256
+          "output": 16507,
+          "prompt": 4523880,
+          "total": 4540387
         }
       },
-      "calls": 1,
-      "total": 10256
+      "calls": 261,
+      "total": 4540387
     }
   }
 }

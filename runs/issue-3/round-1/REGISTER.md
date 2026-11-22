@@ -1,20 +1,20 @@
 ## Assumptions
 | ID | Assumption | Basis | Affects | Status | Confirm via Q-n |
 |---|---|---|---|---|---|
-| ASM-1 | Nested footnote definitions are intended to be processed as valid footnote definitions regardless of indentation inside another footnote body. | Inferred from SRC-1.6 | FR-001 | Unconfirmed | Q-1 |
+| ASM-1 | The nested footnote definition should be rendered as its own footnote in the footnote list, rather than being parsed as nested/contained block content within the parent footnote or swallowed silently. | Inferred from issue text ("I'd expect the nested definition to show up as its own footnote, just like the non-indented one") | FR-002 | Unconfirmed | Q-1 |
 
 ## Open Questions
-| ID | Priority | Question | Why it matters | Blocks | Ask whom | Status | Answer |
+| ID | Priority P1-3 | Question | Why it matters | Blocks | Ask whom | Status | Answer |
 |---|---|---|---|---|---|---|---|
-| Q-1 | P1 | Should footnote definitions nested (indented) inside the body of another footnote be parsed and rendered as standalone footnotes? | Determines whether the reported disappearance is a bug requiring a fix or intended behavior. | FR-001 | Maintainer / Author | Open | |
+| Q-1 | P1 | Should a footnote definition nested (indented) inside another footnote be hoisted and rendered as a top-level footnote in the footnotes list, or should it be processed differently? | Determines whether nested footnote definitions should appear in the footnotes list or how they are structured in output HTML. | FR-002 | Maintainer / Issue Reporter | Open | |
 
 ## Conflicts
 *(None)*
 
 ## Glossary
 | ID | Term | Candidate meanings | Resolved meaning | Q-n |
-|---|---|---|---|---|---|
-| GL-1 | nested (indented) footnote definition | A footnote definition placed within the indentation block of another footnote body | Unresolved | Q-1 |
+|---|---|---|---|---|
+| GL-1 | nested (indented) footnote definition | 1. A footnote definition placed within the indented block content of another footnote.<br>2. A sub-footnote belonging exclusively to the parent footnote. | Unresolved | Q-1 |
 
 ## Confirmation Records
 *(None)*
