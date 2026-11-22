@@ -37,70 +37,52 @@ def ac_test_name(ac_id):
 
 # ---------------------------------------------------------------- stage 1
 def check_spec(srs, validation):
-    reasons, fmt = [], False
+    """Lenient stage 1 check (ADR-015).
+
+    The A1 skill's verdict is recorded but does not decide. The stage passes
+    when the spec has at least one testable acceptance criterion. Open
+    questions become assumptions that the reviewer and the human can see.
+    """
+    reasons = []
     verdict = re.search(r"Verdict[^\n]*\n*[^\n]*?(READY FOR IMPLEMENTATION|PARTIALLY READY|NOT READY|ESCALATED TO HUMAN)",
                         validation, re.I)
     v = verdict.group(1).upper() if verdict else None
     if not v:
-        reasons.append("VALIDATION.md has no recognisable verdict")
-        fmt = True
-    elif v not in ("READY FOR IMPLEMENTATION", "PARTIALLY READY"):
-        reasons.append(f"A1 skill verdict is `{v}`: the issue is not specific enough to implement")
-    else:
-        reasons.append(f"A1 skill verdict is `{v}`")
-    vq4 = re.search(r"V-Q4[^\n]*", validation)
-    if not vq4 or "PASS" not in vq4.group(0).upper():
-        reasons.append("check V-Q4 (every acceptance criterion is pass/fail observable) is not PASS")
-        fmt = fmt or not vq4
-    else:
-        reasons.append("V-Q4 is PASS")
+        return CheckResult(False, ["VALIDATION.md has no recognisable verdict"], {"verdict": None, "acs": {}},
+                           format_only=True)
+    reasons.append(f"A1 skill verdict is `{v}` (recorded, not blocking)")
 
-    ready, must_ready = [], False
+    ready = []
     for line in srs.splitlines():
         if not line.strip().startswith("|"):
             continue
         cells = [c.strip() for c in line.strip().strip("|").split("|")]
         if cells and re.fullmatch(REQ_ID, cells[0].strip("*` ")) and any(c.strip("*` ") == "Ready" for c in cells):
-            rid = cells[0].strip("*` ")
-            ready.append(rid)
-            must_ready = must_ready or any(c.strip("*` ").lower() == "must" for c in cells)
-    if not ready:
-        reasons.append("no requirement is marked `Ready` in the SRS tables")
-    if ready and not must_ready:
-        reasons.append("no `Must` requirement is `Ready`")
+            ready.append(cells[0].strip("*` "))
 
     acs = {}
     for line in srs.splitlines():
         for m in AC_ID.finditer(line):
             acs.setdefault(m.group(0), line[m.end():].strip(" :-*|"))
-    ready_acs = {}
-    for rid in ready:
-        mine = {a: t for a, t in acs.items() if a.startswith(f"AC-{rid}-")}
-        if not mine:
-            reasons.append(f"{rid} is Ready but has no acceptance criterion `AC-{rid}-n`")
-        for a, t in mine.items():
-            low = t.lower()
-            problems = []
-            if not all(w in low for w in ("given", "when", "then")) and not re.search(r"\d", t):
-                problems.append("not in Given/When/Then form and has no measurable threshold")
-            if "<tbd" in low:
-                problems.append("contains a <TBD> placeholder")
-            bad = [w for w in WEASEL if re.search(rf"(?<![\w-]){re.escape(w)}(?![\w-])", low)]
-            if bad:
-                problems.append(f"uses unquantified words {bad}")
-            if problems:
-                reasons.append(f"{a}: " + "; ".join(problems))
-            else:
-                ready_acs[a] = t
-    ok = bool(v in ("READY FOR IMPLEMENTATION", "PARTIALLY READY") and vq4 and "PASS" in vq4.group(0).upper()
-              and ready and must_ready and ready_acs
-              and all(any(a.startswith(f"AC-{r}-") for a in ready_acs) for r in ready)
-              and len([r for r in reasons if r.startswith("AC-")]) == 0)
-    if ok:
-        reasons.append(f"{len(ready)} Ready requirement(s), {len(ready_acs)} testable acceptance criteria: "
-                       + ", ".join(ready_acs))
-    return CheckResult(ok, reasons, {"verdict": v, "ready": ready, "acs": ready_acs},
-                       format_only=fmt and not ok)
+    mine = {a: t for a, t in acs.items() if any(a.startswith(f"AC-{r}-") for r in ready)} or acs
+    if not ready and acs:
+        reasons.append("no requirement is marked `Ready`; using all acceptance criteria, open questions "
+                       "are treated as assumptions")
+
+    testable = {}
+    for a, t in mine.items():
+        clean = re.sub(r"`?<TBD[^>]*>`?", "", t, flags=re.I).strip()
+        low = clean.lower()
+        then = low.split("then", 1)[1] if "then" in low else ""
+        concrete = re.search(r"`[^`]+`|\"[^\"]+\"|'[^']+'|\d", then)
+        if not (all(w in low for w in ("given", "when")) and concrete):
+            reasons.append(f"{a} skipped: its expected result names nothing concrete to check")
+            continue
+        testable[a] = clean
+    ok = bool(testable)
+    reasons.append(f"{len(testable)} testable acceptance criteria: " + ", ".join(testable) if ok
+                   else "no testable acceptance criterion: the issue gives nothing to implement against")
+    return CheckResult(ok, reasons, {"verdict": v, "ready": ready, "acs": testable})
 
 
 # ---------------------------------------------------------------- stage 2

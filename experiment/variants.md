@@ -39,3 +39,14 @@ Everything after stage 1 is identical: models, prompts, checks, budgets, reviewe
 - whether #6 (vague) still stops at stage 1, which is the safety side of the trade-off;
 - for issues that get through, the stage reached and the hidden-test results;
 - stage 1 tokens.
+
+### E2 outcome and change of variant (2026-11-22)
+
+Variant B was stopped after two issues: #2 passed, #3 stopped again at stage 1 (P1 question about behaviour the issue states). Prompt rules did not fix the problem, so E2 now compares the **stage 1 check**, not the prompt (ADR-015):
+
+| Variant | Stage 1 check |
+| --- | --- |
+| A (ADR-007) | strict: A1 verdict READY/PARTIALLY READY, V-Q4 PASS, a Ready `Must` requirement with clean ACs |
+| C (ADR-015, new default) | lenient: at least one AC with a concrete expected result; verdict advisory |
+
+Both checks are code, so they are first compared on the **same saved spec outputs** (no model variance), then the lenient default is run end to end on the issues the strict check stopped, to see whether the extra issues produce correct PRs (hidden tests).
