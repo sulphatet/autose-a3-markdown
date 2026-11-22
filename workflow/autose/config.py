@@ -10,6 +10,14 @@ STATE_BRANCH = "autose-state"
 BRANCH_PREFIX = "autose/issue-"
 SEED_PREFIX = "autose-seed/issue-"   # seeded reviewer-check PRs: autose-seed/issue-<n>-<tag>
 # Reviewer variants for the D8 experiment, chosen by "/autose variant=<name>" on a PR
+SPEC_VARIANTS = {"default": "spec", "spec-v3": "spec_v3"}   # experiment E2: stage 1 prompt file per variant
+
+
+def suffix(variant):
+    """State folder, branch and progress-comment suffix for a variant run ("" for the default)."""
+    return "" if variant in (None, "", "default") else f"-{variant}"
+
+
 REVIEWER_VARIANTS = {"default": "gemini-3.1-flash-lite", "same-model": "gemini-3.5-flash-lite"}
 
 # ADR-006: models

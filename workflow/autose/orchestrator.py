@@ -69,7 +69,9 @@ class Run:
             d.mkdir(parents=True, exist_ok=True)
         self.token = os.environ.pop("GITHUB_TOKEN", None)
         self.pat = os.environ.pop("AUTOSE_PAT", None)     # ADR-012: held in memory, never in agent env
-        self.state = State(a.state, self.n)
+        self.variant = a.variant
+        self.suffix = config.suffix(a.variant)
+        self.state = State(a.state, self.n, self.suffix)
         self.usage = llm.Usage()
         self.issue = gh.issue(self.n, self.token)
         self.status = {s: "pending" for s in STAGES[:5]}
@@ -85,19 +87,21 @@ class Run:
         if not self.token:
             return
         icon = {"pending": "⬜", "running": "⏳", "passed": "✅", "reused": "♻️", "failed": "❌", "stopped": "🛑"}
-        lines = [f"### autose: round {self.round}", f"Run: {gh.run_url()}", ""]
+        title = f"### autose: round {self.round}" + (f" (experiment variant `{self.variant}`)" if self.suffix else "")
+        lines = [title, f"Run: {gh.run_url()}", ""]
         for s in STAGES[:5]:
             st = self.status[s]
             lines.append(f"- {icon.get(st, '⬜')} **{s[1]} {STAGE_NAMES[s]}**: {st}")
         lines.append(f"- ⬜ **6 Review**: {'waiting for release' if not self.pr else 'running in the review job'}")
         if self.pr:
             lines.append(f"\nPull request: {self.pr['url']}")
-        lines.append(f"\nArtifacts: [`autose-state/runs/issue-{self.n}/round-{self.round}`]"
-                     f"(https://github.com/{config.REPO}/tree/{config.STATE_BRANCH}/runs/issue-{self.n}/round-{self.round})")
+        folder = f"runs/issue-{self.n}{self.suffix}/round-{self.round}"
+        lines.append(f"\nArtifacts: [`autose-state/{folder}`]"
+                     f"(https://github.com/{config.REPO}/tree/{config.STATE_BRANCH}/{folder})")
         if note:
             lines.append("\n" + note)
         try:
-            gh.upsert_progress(self.n, "\n".join(lines), self.token)
+            gh.upsert_progress(self.n, "\n".join(lines), self.token, key=self.variant if self.suffix else "")
         except RuntimeError as e:
             print(f"[autose] could not update progress comment: {e}")
 
@@ -190,8 +194,9 @@ class Run:
 
     # ------------------------------------------------------------ S1
     def s1(self):
+        self.spec_prompt = config.SPEC_VARIANTS[self.variant or "default"]
         h = sha(self.issue_hash, self.base_sha, config.PROMPT_VERSION, config.BUILDER_MODEL,
-                file_sha(SKILL), file_sha(PROMPTS / "spec.md"))
+                file_sha(SKILL), file_sha(PROMPTS / f"{self.spec_prompt}.md"))
         files = ["spec.md", "REGISTER.md", "VALIDATION.md", "EVIDENCE.md"]
         if self.round > 1 and self.reuse("S1", files, h, from_round=self.round - 1):
             return self.load_spec_acs()
@@ -210,7 +215,7 @@ class Run:
 
         try:
             today = __import__("datetime").date.today().isoformat()
-            a = self.agent("spec", "S1", prompt("spec", SKILL=SKILL.read_text()),
+            a = self.agent("spec", "S1", prompt(self.spec_prompt, SKILL=SKILL.read_text()),
                            f"Today's date is {today}.\n\n" + issue_block(self.issue),
                            Toolset(self.work, "spec", decl, can_read=False), validate=validate)
         except AgentStopped as e:
@@ -493,6 +498,7 @@ def main(argv=None):
     p.add_argument("--state", required=True)
     p.add_argument("--out", required=True)
     p.add_argument("--logs", required=True)
+    p.add_argument("--variant", default="default", choices=list(config.SPEC_VARIANTS))
     return Run(p.parse_args(argv)).run()
 
 

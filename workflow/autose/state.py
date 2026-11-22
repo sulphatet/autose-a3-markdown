@@ -33,10 +33,10 @@ def file_sha(path):
 
 
 class State:
-    def __init__(self, state_dir, issue):
+    def __init__(self, state_dir, issue, suffix=""):
         self.dir = Path(state_dir)
         self.issue = issue
-        self.issue_dir = self.dir / "runs" / f"issue-{issue}"
+        self.issue_dir = self.dir / "runs" / f"issue-{issue}{suffix}"
         self.path = self.issue_dir / "state.json"
         self.data = json.loads(self.path.read_text()) if self.path.is_file() else {
             "issue": issue, "base_sha": None, "rounds": {}, "tokens": {}}

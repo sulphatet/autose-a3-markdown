@@ -21,10 +21,11 @@ def role(login, token):
 
 
 def decide(event_name, ev, token):
-    """Return (run, mode, issue, round, resume_from, pr, reason).
+    """Return (run, mode, issue, round, resume_from, pr, variant, reason).
 
-    For review mode, the resume_from slot carries the reviewer variant."""
-    no = lambda why: (False, "", "", "", "", "", why)  # noqa: E731
+    `variant` is a stage 1 prompt variant (full mode, experiment E2) or a reviewer
+    variant (review mode, experiment E1). Both are whitelisted in config."""
+    no = lambda why: (False, "", "", "", "", "", "", why)  # noqa: E731
     if event_name == "issues":
         if ev.get("action") != "labeled" or (ev.get("label") or {}).get("name") != config.LABEL:
             return no("not the autose label")
@@ -34,7 +35,7 @@ def decide(event_name, ev, token):
         r = role(who, token)
         if r not in TRUSTED_ROLES:
             return no(f"{who} has role {r}")
-        return True, "full", str(ev["issue"]["number"]), "1", "S1", "", f"label added by {who} ({r})"
+        return True, "full", str(ev["issue"]["number"]), "1", "S1", "", "default", f"label added by {who} ({r})"
 
     if event_name == "issue_comment":
         c = ev["comment"]
@@ -48,7 +49,7 @@ def decide(event_name, ev, token):
         if "pull_request" in ev["issue"]:
             pr = gh.api(f"repos/{config.REPO}/pulls/{num}", token)
             ref = pr["head"]["ref"]
-            m = (re.fullmatch(re.escape(config.BRANCH_PREFIX) + r"(\d+)", ref)
+            m = (re.fullmatch(re.escape(config.BRANCH_PREFIX) + r"(\d+)(?:-[\w-]+)?", ref)
                  or re.fullmatch(re.escape(config.SEED_PREFIX) + r"(\d+)-[\w-]+", ref))
             if not m:
                 return no("pull request was not opened by autose and is not a seeded PR")
@@ -56,8 +57,12 @@ def decide(event_name, ev, token):
             variant = v.group(1) if v else "default"
             if variant not in config.REVIEWER_VARIANTS:
                 return no(f"unknown reviewer variant {variant}")
-            return True, "review", m.group(1), "manual", variant, str(num), f"review-only ({variant}) requested"
-        return True, "full", str(num), "1", "S1", "", "run requested by comment"
+            return True, "review", m.group(1), "manual", "", str(num), variant, f"review-only ({variant}) requested"
+        v = re.search(r"variant=([\w-]+)", c["body"])
+        variant = v.group(1) if v else "default"
+        if variant not in config.SPEC_VARIANTS:
+            return no(f"unknown variant {variant}")
+        return True, "full", str(num), "1", "S1", "", variant, f"run ({variant}) requested by comment"
 
     if event_name == "workflow_dispatch":
         inp = ev.get("inputs") or {}
@@ -71,7 +76,10 @@ def decide(event_name, ev, token):
         rf = inp.get("resume_from") or "S1"
         if rf not in ("S1", "S2", "S3"):
             return no(f"bad resume_from {rf}")
-        return True, "full", str(int(inp["issue"])), rnd, rf, "", f"dispatched by {who}"
+        variant = inp.get("variant") or "default"
+        if variant not in config.SPEC_VARIANTS:
+            return no(f"unknown variant {variant}")
+        return True, "full", str(int(inp["issue"])), rnd, rf, "", variant, f"dispatched by {who} ({variant})"
 
     return no(f"event {event_name} not handled")
 
@@ -79,7 +87,7 @@ def decide(event_name, ev, token):
 def main():
     ev = json.load(open(os.environ["GITHUB_EVENT_PATH"]))
     result = decide(os.environ["GITHUB_EVENT_NAME"], ev, os.environ.get("GITHUB_TOKEN"))
-    keys = ["run", "mode", "issue", "round", "resume_from", "pr", "reason"]
+    keys = ["run", "mode", "issue", "round", "resume_from", "pr", "variant", "reason"]
     out = dict(zip(keys, result))
     out["run"] = "true" if out["run"] else "false"
     print(json.dumps(out))
