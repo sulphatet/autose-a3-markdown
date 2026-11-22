@@ -14,6 +14,11 @@ See the [Contributing Guide](contributing.md) for details.
 
 ## [Unreleased]
 
+### Added
+
+* Support custom link text in the `wikilinks` extension using pipe syntax,
+  such as `[[Page|text]]` (#4).
+
 ### Fixed
 
 * Support automatic links with URL schemes other than HTTP and FTP, such as
