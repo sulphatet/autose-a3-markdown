@@ -1,11 +1,11 @@
 {
-  "calls": 1,
-  "total": 10546,
+  "calls": 2,
+  "total": 14761,
   "by_model": {
     "gemini-3.5-flash-lite": {
-      "prompt": 8169,
-      "output": 2377,
-      "total": 10546
+      "prompt": 12576,
+      "output": 2185,
+      "total": 14761
     }
   }
 }

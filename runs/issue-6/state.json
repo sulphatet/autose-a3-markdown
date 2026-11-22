@@ -4,9 +4,16 @@
   "rounds": {
     "1": {
       "S1": {
+        "artifact_sha": "7e2d983be1a7e1ba208c1ce6e10e444a1085ac7e32f456e1af3aa9e1d8f72867",
         "attempts": 0,
         "input_hash": "f2d4ddda21eff1ad8a695a97f9d4f927c418a932bfb1082291d728b6409d2597",
         "reason": "A1 skill verdict is `NOT READY`: the issue is not specific enough to implement; V-Q4 is PASS; no requirement is marked `Ready` in the SRS tables",
+        "status": "passed"
+      },
+      "S2": {
+        "attempts": 0,
+        "input_hash": "44374e16adf9b977757803ced688797aeaa6800de9967a9767ce519d7df97475",
+        "reason": "Designer stopped: model unavailable: gemini-3.5-flash-lite failed after 6 attempts; last error HTTP 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceede",
         "status": "stopped"
       }
     }
@@ -15,13 +22,13 @@
     "round-1": {
       "by_model": {
         "gemini-3.5-flash-lite": {
-          "output": 2377,
-          "prompt": 8169,
-          "total": 10546
+          "output": 2185,
+          "prompt": 12576,
+          "total": 14761
         }
       },
-      "calls": 1,
-      "total": 10546
+      "calls": 2,
+      "total": 14761
     }
   }
 }

@@ -1,23 +1,22 @@
 ## Assumptions
 | ID | Assumption | Basis | Affects | Status | Confirm via Q-n |
 |---|---|---|---|---|---|
-| ASM-1 | The docs site uses Python-Markdown and its built-in `toc` extension. | Issue context ("toc extension") | FR-001, FR-002 | Unconfirmed | Q-1 |
-| ASM-2 | "Smarter about this" refers to reducing visual clutter or length of the generated TOC on long pages by default or via configuration. | Issue text ("gets really long and kind of overwhelming", "smarter about this") | FR-001, FR-002 | Unconfirmed | Q-2 |
+| ASM-01 | The user is referring to the built-in `toc` extension in Python-Markdown. | Inferred from "toc extension" mention in the issue. | FR-001 | Unconfirmed | Q-01 |
 
 ## Open Questions
 | ID | Priority | Question | Why it matters | Blocks | Ask whom | Status | Answer |
 |---|---|---|---|---|---|---|---|
-| Q-1 | P1 | Which specific features or configuration options (e.g., collapsible nesting, depth limiting, filtering, or UI controls) are expected to make the TOC "smarter" and less overwhelming? | Without knowing the desired feature or behavior, implementation cannot begin. | FR-001, FR-002 | Maintainer / Issue Reporter | Open | |
-| Q-2 | P2 | Should this "smarter" behavior be enabled by default out of the box or require explicit configuration parameters in the `toc` extension? | Determines whether existing users' default TOC output changes. | FR-002 | Maintainer / Issue Reporter | Open | |
+| Q-01 | P1 | Is "toc extension" referring specifically to Python-Markdown's `toc` extension? | Determines whether this requirement applies to the Python-Markdown library. | FR-001 | Stakeholder / Issue reporter | Open | |
+| Q-02 | P1 | What specific behavior or feature is expected to make the TOC "smarter" or more usable out of the box (e.g., depth limiting, collapsible headings, scrolling, filtering)? | The request is entirely open-ended ("Not sure what the best approach is"). Without specific requirements, no concrete implementation can be built or verified. | FR-001, NFR-USE-01 | Stakeholder / Issue reporter | Open | |
 
 ## Conflicts
-*(None)*
+(None)
 
 ## Glossary
 | ID | Term | Candidate meanings | Resolved meaning | Q-n |
 |---|---|---|---|---|
-| GL-1 | overwhelming | 1. Too many heading levels shown at once; 2. Too many total items listed; 3. Lack of collapsible/expandable sections. | Unresolved | Q-1 |
-| GL-2 | smarter | 1. Automatically collapsing nested levels beyond a certain depth; 2. Providing a maximum depth default; 3. UI-based folding/unfolding. | Unresolved | Q-1 |
+| GL-01 | smarter | 1. Limiting maximum heading depth by default.<br>2. Collapsing nested sub-lists.<br>3. Providing interactive filtering/scrolling UI. | Unresolved | Q-02 |
+| GL-02 | overwhelming | 1. Too many items displayed at once.<br>2. Too many nesting levels shown.<br>3. Lack of collapsible sections. | Unresolved | Q-02 |
 
 ## Confirmation Records
-*(None)*
+(None)
