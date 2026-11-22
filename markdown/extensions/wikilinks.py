@@ -59,7 +59,7 @@ class WikiLinkExtension(Extension):
         self.md = md
 
         # append to end of inline patterns
-        WIKILINK_RE = r'\[\[([\w0-9_ -]+)\]\]'
+        WIKILINK_RE = r'\[\[([\w0-9_ -]+)(?:\|([\w0-9_ -]+))?\]\]'
         wikilinkPattern = WikiLinksInlineProcessor(WIKILINK_RE, self.getConfigs())
         wikilinkPattern.md = md
         md.inlinePatterns.register(wikilinkPattern, 'wikilink', 75)
@@ -77,8 +77,9 @@ class WikiLinksInlineProcessor(InlineProcessor):
             base_url, end_url, html_class = self._getMeta()
             label = m.group(1).strip()
             url = self.config['build_url'](label, base_url, end_url)
+            text = m.group(2).strip() if m.group(2) else label
             a = etree.Element('a')
-            a.text = label
+            a.text = text
             a.set('href', url)
             if html_class:
                 a.set('class', html_class)
