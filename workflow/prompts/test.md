@@ -7,6 +7,7 @@ Write exactly one file: `{TEST_FILE}`. Rules, checked by a script:
 2. Use `unittest`. For Markdown-to-HTML checks use `from markdown.test_tools import TestCase` and `self.assertMarkdownRenders(source, expected_html, extensions=[...])`; see `tests/test_syntax/` for examples. For "no exception" ACs, call `markdown.markdown(...)` and assert on the result.
 3. Each test must assert the exact behaviour the AC describes. A test that would also pass on the old code without the change does not count.
 4. The file must pass `python -m flake8 {TEST_FILE}` (max line length 119) and import only the standard library and `markdown`.
-5. Do not change any other file.
+5. No docstrings and no comments: upstream CI spell-checks them, and code names in them fail it.
+6. Do not change any other file.
 
 Run your tests before you submit. If a test fails, check the AC again: if your test matches the AC, keep it; failing tests are reported to the implementer. Call `submit` with `test_file` (the path) and a short `summary`.

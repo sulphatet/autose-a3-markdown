@@ -4,6 +4,7 @@ The PAT is used only for `git push` and `gh pr create`, so the push triggers CI
 and the PR author differs from the reviewer identity (ADR-005, ADR-012).
 """
 
+import re
 import shutil
 import time
 
@@ -90,6 +91,22 @@ def wait_for_ci(run, head):
     bad = [c for c in runs if c["conclusion"] not in ("success", "skipped", "neutral")]
     reasons = [f"{len(runs)} check run(s); failing: {[c['name'] for c in bad] or 'none'}"]
     for c in bad[:3]:
-        log = gh.gh(["api", f"repos/{config.REPO}/actions/jobs/{c['id']}/logs"], run.token, check=False)
-        reasons.append(f"`{c['name']}` ({c['conclusion']}), last lines of its log:\n\n```\n{log[-2500:]}\n```")
+        log = ""
+        for tok in (run.token, run.pat):
+            log = gh.gh(["api", f"repos/{config.REPO}/actions/jobs/{c['id']}/logs"], tok, check=False)
+            if log.strip():
+                break
+        reasons.append(f"`{c['name']}` ({c['conclusion']}), relevant lines of its log:\n\n```\n{_relevant(log)}\n```")
     return CheckResult(not bad, reasons)
+
+
+def _relevant(log, limit=2500):
+    """The lines that explain a failure, not the job's cleanup at the end (found in run 45011011795)."""
+    lines = [re.sub(r"^\S+Z ", "", l) for l in log.splitlines()]
+    keep = set()
+    for i, l in enumerate(lines):
+        if re.search(r"error|fail|misspell|traceback|assert|E\d{3}|F\d{3}|W\d{3}", l, re.I) \
+                and "##[group]" not in l and "deprecated" not in l:
+            keep.update(range(max(0, i - 3), min(len(lines), i + 8)))
+    text = "\n".join(lines[i] for i in sorted(keep)) or "\n".join(lines[-40:])
+    return text[:limit] or "(log not available)"
