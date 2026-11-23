@@ -7,8 +7,8 @@
         "artifact_sha": "7e2d983be1a7e1ba208c1ce6e10e444a1085ac7e32f456e1af3aa9e1d8f72867",
         "attempts": 0,
         "input_hash": "f2d4ddda21eff1ad8a695a97f9d4f927c418a932bfb1082291d728b6409d2597",
-        "reason": "A1 skill verdict is `NOT READY`: the issue is not specific enough to implement; V-Q4 is PASS; no requirement is marked `Ready` in the SRS tables",
-        "status": "passed"
+        "reason": "reused spec no longer passes its check: A1 skill verdict is `NOT READY` (recorded, not blocking); no requirement is marked `Ready`; using all acceptance criteria, open questions are treated as assumptions; AC-FR-001-1 skipped: its expected result names nothing concrete to check; no testable acceptance criterion: the issue gives nothing to implement against",
+        "status": "stopped"
       },
       "S2": {
         "attempts": 0,
@@ -20,15 +20,9 @@
   },
   "tokens": {
     "round-1": {
-      "by_model": {
-        "gemini-3.5-flash-lite": {
-          "output": 2185,
-          "prompt": 12576,
-          "total": 14761
-        }
-      },
-      "calls": 2,
-      "total": 14761
+      "by_model": {},
+      "calls": 0,
+      "total": 0
     }
   }
 }

@@ -58,3 +58,9 @@ Version: v0.1 | Date: 2026-11-22 | Mode: non-interactive | Status: Draft
 - A1 skill verdict is `NOT READY` (recorded, not blocking)
 - no requirement is marked `Ready`; using all acceptance criteria, open questions are treated as assumptions
 - 1 testable acceptance criteria: AC-FR-001-1
+
+
+---
+## Stopped at stage 1 (Requirements)
+
+reused spec no longer passes its check: A1 skill verdict is `NOT READY` (recorded, not blocking); no requirement is marked `Ready`; using all acceptance criteria, open questions are treated as assumptions; AC-FR-001-1 skipped: its expected result names nothing concrete to check; no testable acceptance criterion: the issue gives nothing to implement against
