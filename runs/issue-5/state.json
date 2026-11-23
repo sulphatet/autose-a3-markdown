@@ -17,9 +17,22 @@
         "status": "passed"
       },
       "S3": {
-        "attempts": 1,
+        "artifact_sha": "803dab40f819c0ea1d5d7d1e3449a9aac79278bf00e6036e8ed246a65a1f6236",
+        "attempts": 2,
+        "input_hash": "c0dd5c4677d7964a87cef806dfa667060ece75772ec92cb3a50d01186ca6d108",
         "reason": "Implementer stopped: model unavailable: gemini-3.5-flash-lite failed after 6 attempts; last error HTTP 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceede",
-        "status": "stopped"
+        "status": "passed"
+      },
+      "S4": {
+        "artifact_sha": "0e7791a4896cd8c77227bfa81d78ca46e2ffdba39839a5eaf8514b55ef87410f",
+        "attempts": 0,
+        "status": "passed"
+      },
+      "S5": {
+        "artifact_sha": "affcb38c60394a76b6dc42b665dd1fe0961038f386408d24739d349843e3fe6f",
+        "attempts": 0,
+        "pr": 24,
+        "status": "passed"
       }
     }
   },
@@ -27,13 +40,13 @@
     "round-1": {
       "by_model": {
         "gemini-3.5-flash-lite": {
-          "output": 3538,
-          "prompt": 197157,
-          "total": 200695
+          "output": 1847,
+          "prompt": 299723,
+          "total": 301570
         }
       },
-      "calls": 18,
-      "total": 200695
+      "calls": 30,
+      "total": 301570
     }
   }
 }

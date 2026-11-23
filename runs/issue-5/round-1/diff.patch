@@ -1,0 +1,31 @@
+diff --git a/docs/changelog.md b/docs/changelog.md
+index cba971a..df2d86a 100644
+--- a/docs/changelog.md
++++ b/docs/changelog.md
+@@ -14,7 +14,10 @@ See the [Contributing Guide](contributing.md) for details.
+ 
+ ## [Unreleased]
+ 
+-### Fixed
++### Added
++
++* Allow headings with the `notoc` class to be excluded from the table of contents
++  and `md.toc_tokens` in the `toc` extension.
+ 
+ * Support automatic links with URL schemes other than HTTP and FTP, such as
+   `<ssh://example.org>` (#1244).
+diff --git a/markdown/extensions/toc.py b/markdown/extensions/toc.py
+index ba65225..9500047 100644
+--- a/markdown/extensions/toc.py
++++ b/markdown/extensions/toc.py
+@@ -411,7 +411,9 @@ class TocTreeprocessor(Treeprocessor):
+                     # Remove the data-toc-label attribute as it is no longer needed
+                     del el.attrib['data-toc-label']
+ 
+-                if int(el.tag[-1]) >= self.toc_top and int(el.tag[-1]) <= self.toc_bottom:
++                is_notoc = "notoc" in el.get("class", "").split()
++
++                if not is_notoc and int(el.tag[-1]) >= self.toc_top and int(el.tag[-1]) <= self.toc_bottom:
+                     toc_tokens.append({
+                         'level': int(el.tag[-1]),
+                         'id': unescape(el.attrib["id"]),
