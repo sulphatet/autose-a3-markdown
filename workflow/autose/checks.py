@@ -72,8 +72,11 @@ def check_spec(srs, validation):
     testable = {}
     for a, t in mine.items():
         clean = re.sub(r"`?<TBD[^>]*>`?", "", t, flags=re.I).strip()
+        # IDs such as Q-02 or FR-001 are not expected results (found in run 45016653708)
+        clean = re.sub(r"\(?[^()]*\b(?:Q|FR|NFR|AC|ASM|SRC)-[\w.-]*\d[^()]*\)?", lambda m: "" if "(" in m.group(0) else m.group(0), clean)
+        ids_out = re.sub(r"\b(?:Q|FR|NFR|AC|ASM|SRC)-[\w.-]*\d[\w.-]*", "", clean)
         low = clean.lower()
-        then = low.split("then", 1)[1] if "then" in low else ""
+        then = ids_out.lower().split("then", 1)[1] if "then" in ids_out.lower() else ""
         concrete = re.search(r"`[^`]+`|\"[^\"]+\"|'[^']+'|\d", then)
         if not (all(w in low for w in ("given", "when")) and concrete):
             reasons.append(f"{a} skipped: its expected result names nothing concrete to check")
