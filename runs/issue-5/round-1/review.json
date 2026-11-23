@@ -1,0 +1,40 @@
+{
+  "verdict": "approve",
+  "summary": "The pull request correctly implements the requested feature to exclude headings with the `notoc` class from the table of contents and `md.toc_tokens`, while preserving the heading's rendering in the document. Tests verify the functionality.",
+  "kind": "none",
+  "requirements": [
+    {
+      "evidence": "markdown/extensions/toc.py:414-416",
+      "requirement": "The `toc` extension should skip any heading that has the class `notoc`.",
+      "status": "met"
+    },
+    {
+      "evidence": "tests/test_autose_issue_5.py:39-43",
+      "status": "met",
+      "requirement": "The `md.toc_tokens` should leave out headings with the `notoc` class."
+    },
+    {
+      "status": "met",
+      "evidence": "tests/test_autose_issue_5.py:10-25",
+      "requirement": "The heading itself should still be rendered with its normal id and class."
+    }
+  ],
+  "findings": [],
+  "round": "1",
+  "pr": 24,
+  "model": "gemini-3.1-flash-lite",
+  "variant": "default",
+  "tokens": {
+    "calls": 5,
+    "total": 20871,
+    "by_model": {
+      "gemini-3.1-flash-lite": {
+        "prompt": 20537,
+        "output": 334,
+        "total": 20871
+      }
+    }
+  },
+  "note": "",
+  "dropped": []
+}
