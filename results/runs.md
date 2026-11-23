@@ -70,6 +70,7 @@ Both checks are code, so they were applied to the *same* spec files saved on the
 | --- | --- | --- | --- | --- | --- | --- |
 | #3 | [45012929332](https://github.com/sulphatet/autose-a3-markdown/actions/runs/45012929332) | pass (verdict NOT READY, advisory) | stopped S4 after 3 attempts x 2 designs | 1/3 on final diff (fix not done) | 4,540,387 | correct stop; implementer widened footnote regex to 4 spaces (indented code) and **rewrote docs/changelog.md, deleting 816 lines** - not caught -> changelog guard (PR #22, ADR-007 amendment) |
 | #5 | [45015068251](https://github.com/sulphatet/autose-a3-markdown/actions/runs/45015068251) | pass | stopped S3: model unavailable (429) | — | 200,695 | free-tier daily quota exhausted |
+| #5 | [45148975835](https://github.com/sulphatet/autose-a3-markdown/actions/runs/45148975835) | pass | **approved, PR [#24](https://github.com/sulphatet/autose-a3-markdown/pull/24)** | 3/3 | 322,441 | rerun after the quota reset |
 | #6 | [45016653708](https://github.com/sulphatet/autose-a3-markdown/actions/runs/45016653708) | — | stopped S1: model unavailable (429) | — | 14,761 | quota; saved-spec check above shows it would stop at S1 |
 
 ## Tokens
@@ -94,3 +95,14 @@ About 99% are prompt tokens: every agent turn resends the whole conversation (AD
 | [45011011795](https://github.com/sulphatet/autose-a3-markdown/actions/runs/45011011795) | test-file spelling failure sent to the implementer; empty CI log | ADR-011 amendment, PR #21 |
 | [45012929332](https://github.com/sulphatet/autose-a3-markdown/actions/runs/45012929332) | implementer overwrote the changelog; not caught | changelog guard, ADR-007 amendment, PR #22 |
 | 45009976703, 45015068251, 45016653708 | Gemini 503 / 429 quota | none (infrastructure); reported as such (ADR-009) |
+
+## Runs on 2026-11-23
+
+| Run | Issue | Outcome | Notes |
+| --- | --- | --- | --- |
+| [45148975835](https://github.com/sulphatet/autose-a3-markdown/actions/runs/45148975835) | #5 | approved, PR [#24](https://github.com/sulphatet/autose-a3-markdown/pull/24); hidden tests 3/3 | lenient S1: the issue the strict check had stopped now reaches an approved PR |
+| [45152231470](https://github.com/sulphatet/autose-a3-markdown/actions/runs/45152231470) | #6 | stopped at S1 (intended) | live run shown in the demo video |
+
+**Correction to the E2 summary above:** in run [45016653708](https://github.com/sulphatet/autose-a3-markdown/actions/runs/45016653708) the lenient check let the vague issue #6 through stage 1, because the digits in the question ID  counted as a concrete result. Fixed in PR #25 (ADR-015 amendment); the live rerun above stops at S1.
+
+With #5, **3 of 4** implementable issues reached an approved PR, and **10/10** hidden tests pass on those PRs.
