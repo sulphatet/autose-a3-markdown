@@ -103,6 +103,6 @@ About 99% are prompt tokens: every agent turn resends the whole conversation (AD
 | [45148975835](https://github.com/sulphatet/autose-a3-markdown/actions/runs/45148975835) | #5 | approved, PR [#24](https://github.com/sulphatet/autose-a3-markdown/pull/24); hidden tests 3/3 | lenient S1: the issue the strict check had stopped now reaches an approved PR |
 | [45152231470](https://github.com/sulphatet/autose-a3-markdown/actions/runs/45152231470) | #6 | stopped at S1 (intended) | live run shown in the demo video |
 
-**Correction to the E2 summary above:** in run [45016653708](https://github.com/sulphatet/autose-a3-markdown/actions/runs/45016653708) the lenient check let the vague issue #6 through stage 1, because the digits in the question ID  counted as a concrete result. Fixed in PR #25 (ADR-015 amendment); the live rerun above stops at S1.
+**Correction to the E2 summary above:** in run [45016653708](https://github.com/sulphatet/autose-a3-markdown/actions/runs/45016653708) the lenient check let the vague issue #6 through stage 1, because the digits in the question ID `Q-02` counted as a concrete result. Fixed in PR #25 (ADR-015 amendment); the live rerun above stops at S1.
 
 With #5, **3 of 4** implementable issues reached an approved PR, and **10/10** hidden tests pass on those PRs.
