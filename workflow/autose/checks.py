@@ -202,6 +202,13 @@ def check_build(root, base_sha, design_files, lint_baseline=None):
     if "docs/changelog.md" not in files:
         reasons.append("no `docs/changelog.md` entry; upstream CI (changelog-enforcer) will fail")
         return CheckResult(False, reasons)
+    stat = subprocess.run(["git", "diff", "--numstat", base_sha, "--", "docs/changelog.md"], cwd=root,
+                          capture_output=True, text=True).stdout.split()
+    removed = int(stat[1]) if len(stat) > 1 and stat[1].isdigit() else 0
+    if removed > 2:
+        reasons.append(f"`docs/changelog.md` lost {removed} existing lines: only add an entry under "
+                       "`## [Unreleased]` with `replace_in_file`; do not rewrite the file (found in run 45012929332)")
+        return CheckResult(False, reasons, {"files": files})
     steps = [
         (["python", "-m", "pip", "install", "-q", "-e", "."], "pip install -e ."),
         (["python", "-c", "import markdown; markdown.markdown('# x', extensions=['extra', 'toc'])"], "import + smoke call"),
