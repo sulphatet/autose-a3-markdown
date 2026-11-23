@@ -411,7 +411,9 @@ class TocTreeprocessor(Treeprocessor):
                     # Remove the data-toc-label attribute as it is no longer needed
                     del el.attrib['data-toc-label']
 
-                if int(el.tag[-1]) >= self.toc_top and int(el.tag[-1]) <= self.toc_bottom:
+                is_notoc = "notoc" in el.get("class", "").split()
+
+                if not is_notoc and int(el.tag[-1]) >= self.toc_top and int(el.tag[-1]) <= self.toc_bottom:
                     toc_tokens.append({
                         'level': int(el.tag[-1]),
                         'id': unescape(el.attrib["id"]),
