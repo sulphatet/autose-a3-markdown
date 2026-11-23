@@ -14,7 +14,10 @@ See the [Contributing Guide](contributing.md) for details.
 
 ## [Unreleased]
 
-### Fixed
+### Added
+
+* Allow headings with the `notoc` class to be excluded from the table of contents
+  and `md.toc_tokens` in the `toc` extension.
 
 * Support automatic links with URL schemes other than HTTP and FTP, such as
   `<ssh://example.org>` (#1244).
